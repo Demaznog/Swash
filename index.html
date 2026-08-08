@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9ad7df">
-<title>TIDE v1.0</title>
+<title>TIDE v1.1</title>
 <style>
 :root{
   --sea1:#8ed4dc;--sea2:#63b8c4;--sand1:#f0dfb9;--sand2:#d7bc87;
@@ -90,7 +90,7 @@ button,select{font:inherit}
 .rule{margin:10px 0;line-height:1.45}
 @media(min-width:700px){.screen{padding-left:28px;padding-right:28px}.logo{font-size:64px}}
 
-/* --- TIDE v1.0 polish --- */
+/* --- TIDE v1.1 polish --- */
 :root{
   --tide-deep:#123f4b;
   --tide-blue:#176fa3;
@@ -253,7 +253,7 @@ button,select{font:inherit}
       <div class="rule"><b>1.</b> Chaque joueur pose 4 coquillages.</div>
       <div class="rule"><b>2.</b> La victoire n’est possible qu’une fois les 8 coquillages posés.</div>
       <div class="rule"><b>3.</b> Ensuite, chaque coquillage se déplace d’une seule case, horizontalement ou verticalement.</div>
-      <div class="rule"><b>4.</b> Alignez vos 4 coquillages horizontalement, verticalement ou en diagonale.</div>
+      <div class="rule"><b>4.</b> Alignez vos 4 coquillages horizontalement, verticalement ou en diagonale.</div><div class="rule"><b>IA V1.1.</b> Expert et Maître jouent désormais sans erreurs aléatoires, avec recherche renforcée et défense tactique prioritaire.</div>
     </div>
   </section>
 </div>
@@ -282,10 +282,10 @@ const TIDE = (() => {
   const CENTER=new Set([5,6,9,10]), CORNERS=new Set([0,3,12,15]);
 
   const AI_PROFILES={
-    relax:{name:"Détente",depth:1,perfectChance:.20,noise:18,thinkMs:280},
-    clever:{name:"Malin",depth:2,perfectChance:.55,noise:8,thinkMs:360},
-    expert:{name:"Expert",depth:4,perfectChance:.88,noise:2.5,thinkMs:430},
-    master:{name:"Maître",depth:5,perfectChance:1,noise:0,thinkMs:520}
+    relax:{name:"Détente",depth:1,perfectChance:.18,noise:22,thinkMs:260},
+    clever:{name:"Malin",depth:3,perfectChance:.62,noise:7,thinkMs:360},
+    expert:{name:"Expert",depth:6,perfectChance:1,noise:0,thinkMs:480},
+    master:{name:"Maître",depth:8,perfectChance:1,noise:0,thinkMs:620}
   };
 
   function initialState(firstPlayer=1){
@@ -338,11 +338,11 @@ const TIDE = (() => {
     return null;
   }
   function linePotential(board,p){
-    const o=other(p),w=[0,.7,2.5,9,1000]; let score=0;
+    const o=other(p),w=[0,.8,4.2,28,10000]; let score=0;
     for(const line of WIN_LINES){
       let m=0,t=0;
       for(const i of line){ if(board[i]===p)m++; else if(board[i]===o)t++; }
-      if(t===0)score+=w[m]; if(m===0)score-=.9*w[t];
+      if(t===0)score+=w[m]; if(m===0)score-=1.12*w[t];
     }
     return score;
   }
@@ -364,8 +364,11 @@ const TIDE = (() => {
     return score;
   }
   function key(s){return `${s.board.join("")}|${s.turn}|${s.placementsDone}`}
+  const TT=new Map();
   function minimax(s,root,depth,alpha,beta,seen,opts){
     const k=key(s); if(seen.has(k))return 0;
+    const tk=k+"|"+root+"|"+depth;
+    if(TT.has(tk)) return TT.get(tk);
     if(depth<=0)return evaluate(s,root);
     const moves=legalMoves(s);
     if(!moves.length)return s.turn===root?-100000:100000;
@@ -379,12 +382,36 @@ const TIDE = (() => {
       else{best=Math.min(best,val);beta=Math.min(beta,best)}
       if(beta<=alpha)break;
     }
+    if(TT.size>120000) TT.clear();
+    TT.set(tk,best);
     return best;
   }
   function chooseAiMove(s,level="clever",opts={}){
     const cfg=AI_PROFILES[level]||AI_PROFILES.clever, root=s.turn, moves=legalMoves(s);
     if(!moves.length)return null;
-    const scored=moves.map(mv=>{
+    TT.clear();
+
+    // Always take an immediate legal win.
+    for(const mv of moves){
+      const ns=applyMove(s,mv),t=terminalAfterMove(s,ns,root,opts);
+      if(t && t.winner===root) return mv;
+    }
+
+    // Expert/Master: reject moves that allow an immediate reply win whenever avoidable.
+    let candidateMoves=moves;
+    if(level==="expert"||level==="master"){
+      const safe=moves.filter(mv=>{
+        const ns=applyMove(s,mv);
+        for(const reply of legalMoves(ns)){
+          const after=applyMove(ns,reply);
+          const t=terminalAfterMove(ns,after,ns.turn,opts);
+          if(t && t.winner===ns.turn) return false;
+        }
+        return true;
+      });
+      if(safe.length) candidateMoves=safe;
+    }
+    const scored=candidateMoves.map(mv=>{
       const ns=applyMove(s,mv),t=terminalAfterMove(s,ns,root,opts);
       const score=t?(t.winner===0?0:(t.winner===root?100000:-100000))
         :minimax(ns,root,cfg.depth-1,-Infinity,Infinity,new Set(),opts);
@@ -415,8 +442,8 @@ let mode="solo";
 let state=TIDE.initialState(1);
 let selected=null,ended=false,winningLine=null,firstPlayer=1;
 
-const stats=JSON.parse(localStorage.getItem("tide_stats_v10")||'{"wins":0,"losses":0,"draws":0,"played":0,"streak":0}');
-function saveStats(){localStorage.setItem("tide_stats_v10",JSON.stringify(stats));renderStats();}
+const stats=JSON.parse(localStorage.getItem("tide_stats_v11")||'{"wins":0,"losses":0,"draws":0,"played":0,"streak":0}');
+function saveStats(){localStorage.setItem("tide_stats_v11",JSON.stringify(stats));renderStats();}
 function renderStats(){
   $("wins").textContent=stats.wins;$("losses").textContent=stats.losses;$("draws").textContent=stats.draws;
   $("played").textContent=stats.played;$("streak").textContent=stats.streak;
