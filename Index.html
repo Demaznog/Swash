@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#9ad7df">
+<title>TIDE v1.0</title>
+<style>
+:root{
+  --sea1:#8ed4dc;--sea2:#63b8c4;--sand1:#f0dfb9;--sand2:#d7bc87;
+  --ink:#173b40;--glass:rgba(255,255,255,.22);--glass2:rgba(255,255,255,.56);
+  font-family:Inter,ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:linear-gradient(180deg,var(--sea1),var(--sea2) 29%,var(--sand1) 30%,var(--sand2));color:var(--ink)}
+body{min-height:100svh;overflow-x:hidden}
+button,select{font:inherit}
+.app{min-height:100svh;position:relative;overflow:hidden}
+.wave{position:absolute;left:-10%;right:-10%;height:76px;top:26%;background:rgba(255,255,255,.35);filter:blur(1px);border-radius:50%;transform:rotate(-2deg)}
+.wave::after{content:"";position:absolute;inset:18px 0 auto 0;height:28px;background:rgba(255,255,255,.26);border-radius:50%}
+.screen{position:relative;z-index:2;min-height:100svh;display:none;padding:max(20px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom))}
+.screen.active{display:flex;flex-direction:column}
+.home{justify-content:space-between}
+.brand{margin-top:6vh}
+.logo{font-size:52px;font-weight:900;letter-spacing:.08em}
+.tag{margin-top:6px;font-size:15px;opacity:.7}
+.hero{display:grid;place-items:center;flex:1}
+.mini-board{width:min(62vw,280px);aspect-ratio:1;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;transform:rotate(-2deg)}
+.mini-hole,.cell{border-radius:50%;background:rgba(116,81,38,.13);box-shadow:inset 0 7px 12px rgba(86,55,21,.14),0 2px 0 rgba(255,255,255,.25)}
+.cta{display:grid;gap:12px;margin-bottom:12px}
+.primary,.secondary,.ghost{
+  border:0;border-radius:18px;padding:16px 18px;font-weight:800
+}
+.primary{background:#173b40;color:white;box-shadow:0 8px 24px rgba(20,58,63,.22)}
+.secondary{background:var(--glass2);color:var(--ink);backdrop-filter:blur(12px)}
+.ghost{background:transparent;color:var(--ink);padding:10px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.iconbtn{border:0;background:rgba(255,255,255,.28);backdrop-filter:blur(10px);width:44px;height:44px;border-radius:50%;font-size:20px}
+.title{font-weight:900;letter-spacing:.03em}
+.game-wrap{flex:1;display:grid;place-items:center}
+.game-card{width:min(94vw,540px)}
+.info{display:flex;justify-content:space-between;align-items:center;margin:8px 4px 18px;font-size:14px}
+.turn{font-weight:800}
+.level-pill{background:rgba(255,255,255,.35);padding:8px 11px;border-radius:999px}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;aspect-ratio:1;padding:8px}
+.cell{border:0;position:relative;display:grid;place-items:center;transition:transform .16s ease,outline .16s ease}
+.cell:active{transform:scale(.96)}
+.cell.legal{outline:3px solid rgba(23,59,64,.28);outline-offset:2px}
+.cell.selected{outline:4px solid rgba(23,59,64,.48);outline-offset:3px}
+.shell{
+ width:78%;aspect-ratio:1;position:relative;
+ border-radius:58% 42% 48% 52% / 48% 50% 50% 52%;
+ transform:rotate(-12deg);
+ box-shadow:0 10px 15px rgba(49,35,20,.25),0 3px 4px rgba(49,35,20,.16),inset 4px 5px 7px rgba(255,255,255,.35),inset -6px -7px 10px rgba(20,20,20,.2);
+ transition:transform .2s ease,filter .2s ease;
+ animation:shellIn .23s cubic-bezier(.2,.8,.2,1);
+ overflow:hidden;
+}
+.shell::before{
+ content:"";position:absolute;left:18%;top:16%;width:56%;height:56%;border-radius:50%;
+ background:
+   radial-gradient(circle at 48% 48%,rgba(255,255,255,.32) 0 7%,transparent 8%),
+   repeating-radial-gradient(circle at 50% 50%,transparent 0 7%,rgba(255,255,255,.27) 8% 10%,rgba(30,25,25,.13) 11% 13%,transparent 14% 18%);
+ transform:rotate(8deg);
+}
+.shell::after{
+ content:"";position:absolute;right:-3%;bottom:6%;width:39%;height:31%;
+ border-radius:58% 42% 55% 45% / 45% 50% 50% 55%;
+ background:radial-gradient(ellipse at 38% 42%,rgba(17,22,24,.82),rgba(34,35,31,.5) 45%,rgba(255,255,255,.1) 48%,transparent 51%);
+ transform:rotate(-10deg);
+ box-shadow:-3px -2px 3px rgba(255,255,255,.18);
+}
+.shell.p1{background:
+ linear-gradient(118deg,rgba(255,255,255,.22),transparent 30%),
+ repeating-radial-gradient(ellipse at 42% 44%,#80d7ff 0 8px,#2687d8 9px 14px,#0b4f9d 15px 20px,#062e66 21px 24px)}
+.shell.p2{background:
+ linear-gradient(118deg,rgba(255,255,255,.24),transparent 30%),
+ repeating-radial-gradient(ellipse at 42% 44%,#ffab92 0 8px,#ed513a 9px 14px,#a91f23 15px 20px,#631318 21px 24px)}
+.shell.win{filter:brightness(1.22) drop-shadow(0 0 12px rgba(255,255,255,.95));transform:rotate(-12deg) scale(1.1);animation:winPulse .9s ease-in-out infinite alternate}
+@keyframes shellIn{from{transform:rotate(-20deg) scale(.72);opacity:.25}to{transform:rotate(-12deg) scale(1);opacity:1}}
+@keyframes winPulse{from{filter:brightness(1.08) drop-shadow(0 0 5px rgba(255,255,255,.5))}to{filter:brightness(1.34) drop-shadow(0 0 16px rgba(255,255,255,1))}}
+.status{text-align:center;min-height:28px;font-weight:800;margin-top:16px}
+.substatus{text-align:center;min-height:20px;font-size:13px;opacity:.65}
+.actions{display:flex;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.actions button,.actions select{border:0;border-radius:14px;padding:11px 13px;background:rgba(255,255,255,.45);color:var(--ink);font-weight:750}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}
+.stat{background:rgba(255,255,255,.38);backdrop-filter:blur(10px);border-radius:18px;padding:18px 10px;text-align:center}
+.stat b{display:block;font-size:28px}.stat span{font-size:12px;opacity:.65}
+.sheet{background:rgba(255,255,255,.48);backdrop-filter:blur(18px);border-radius:24px;padding:20px;margin-top:22px}
+.rule{margin:10px 0;line-height:1.45}
+@media(min-width:700px){.screen{padding-left:28px;padding-right:28px}.logo{font-size:64px}}
+
+/* --- TIDE v1.0 polish --- */
+:root{
+  --tide-deep:#123f4b;
+  --tide-blue:#176fa3;
+  --tide-red:#d94a3a;
+}
+.studio-mark{
+  text-align:center;
+  font-size:11px;
+  letter-spacing:.18em;
+  font-weight:800;
+  opacity:.46;
+  margin:0 0 12px;
+}
+.logo{
+  letter-spacing:.18em;
+  text-shadow:0 2px 0 rgba(255,255,255,.28);
+}
+.mini-board{animation:floatBoard 5.5s ease-in-out infinite}
+@keyframes floatBoard{50%{transform:rotate(1deg) translateY(-4px)}}
+.wave{animation:tideWave 7s ease-in-out infinite alternate}
+.wave::after{animation:tideFoam 5.5s ease-in-out infinite alternate}
+@keyframes tideWave{from{transform:translateX(-1.5%) rotate(-2deg)}to{transform:translateX(1.5%) rotate(1deg)}}
+@keyframes tideFoam{from{transform:translateX(1%)}to{transform:translateX(-2%)}}
+.cell{
+  overflow:visible;
+}
+.shell{
+  position:relative;
+  width:75%;
+  border-radius:58% 42% 48% 52% / 57% 46% 54% 43%;
+  transform:rotate(-8deg);
+  animation:shellDrop .24s cubic-bezier(.2,.85,.3,1.15);
+}
+.shell::before{
+  content:"";
+  position:absolute;
+  left:22%;top:20%;
+  width:47%;height:47%;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,.34);
+  box-shadow:
+    inset 0 0 0 4px rgba(20,20,20,.08),
+    inset 0 0 0 9px rgba(255,255,255,.06);
+  transform:rotate(18deg);
+}
+.shell::after{
+  content:"";
+  position:absolute;
+  right:-7%;bottom:9%;
+  width:34%;height:24%;
+  border-radius:55% 65% 65% 45%;
+  background:rgba(35,22,16,.52);
+  box-shadow:inset 3px 2px 5px rgba(0,0,0,.32);
+  transform:rotate(-11deg);
+}
+.shell.p1{
+  background:
+    radial-gradient(circle at 34% 28%,rgba(255,255,255,.94) 0 8%,transparent 9%),
+    repeating-radial-gradient(ellipse at 45% 54%,#63b8e8 0 6px,#2c88c3 7px 11px,#17659b 12px 15px,#0e4b79 16px 18px);
+}
+.shell.p2{
+  background:
+    radial-gradient(circle at 34% 28%,#ffd4c8 0 8%,transparent 9%),
+    repeating-radial-gradient(ellipse at 45% 54%,#f07a67 0 6px,#db4d3d 7px 11px,#b9322c 12px 15px,#7f211f 16px 18px);
+}
+.shell.win{
+  animation:winningShell .8s ease-in-out infinite alternate;
+}
+@keyframes shellDrop{
+  from{transform:translateY(-12px) rotate(-14deg) scale(.78);opacity:.15}
+  to{transform:translateY(0) rotate(-8deg) scale(1);opacity:1}
+}
+@keyframes winningShell{
+  from{filter:brightness(1.08) drop-shadow(0 0 4px rgba(255,255,255,.65));transform:rotate(-8deg) scale(1.02)}
+  to{filter:brightness(1.26) drop-shadow(0 0 14px rgba(255,255,255,.95));transform:rotate(-4deg) scale(1.09)}
+}
+.cell.selected .shell{transform:rotate(-4deg) translateY(-5px) scale(1.06)}
+.status{letter-spacing:.01em}
+.primary{background:linear-gradient(180deg,#184a55,#113741)}
+.secondary{border:1px solid rgba(255,255,255,.28)}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="wave"></div>
+
+  <section class="screen home active" id="home">
+    <div class="brand">
+      <div class="logo">TIDE</div>
+      <div class="tag">Calme en surface. Stratégique en profondeur.</div>
+    </div>
+    <div class="hero">
+      <div class="mini-board">
+        <div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div>
+        <div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div>
+        <div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div>
+        <div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div>
+      </div>
+    </div>
+    <div class="studio-mark">A TOKA game</div><div class="cta">
+      <button class="primary" id="playSolo">Jouer contre l’IA</button>
+      <button class="secondary" id="playDuel">Deux joueurs</button>
+      <button class="ghost" id="openStats">Statistiques</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="topbar">
+      <button class="iconbtn" id="backHome">‹</button>
+      <div class="title">TIDE</div>
+      <button class="iconbtn" id="rulesBtn">?</button>
+    </div>
+    <div class="game-wrap">
+      <div class="game-card">
+        <div class="info">
+          <div class="turn" id="turnLabel">À vous</div>
+          <div class="level-pill" id="modeLabel">IA · Malin</div>
+        </div>
+        <div class="board" id="board"></div>
+        <div class="status" id="status"></div>
+        <div class="substatus" id="substatus"></div>
+        <div class="actions">
+          <select id="levelSelect">
+            <option value="relax">Détente</option>
+            <option value="clever" selected>Malin</option>
+            <option value="expert">Expert</option>
+            <option value="master">Maître</option>
+          </select>
+          <button id="firstPlayerBtn">Je commence</button>
+          <button id="newGameBtn">Rejouer</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="stats">
+    <div class="topbar">
+      <button class="iconbtn" id="statsBack">‹</button>
+      <div class="title">Statistiques</div><div style="width:44px"></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat"><b id="wins">0</b><span>Victoires</span></div>
+      <div class="stat"><b id="losses">0</b><span>Défaites</span></div>
+      <div class="stat"><b id="draws">0</b><span>Nuls</span></div>
+    </div>
+    <div class="sheet">
+      <div class="rule"><b>Parties jouées</b><br><span id="played">0</span></div>
+      <div class="rule"><b>Série actuelle</b><br><span id="streak">0</span></div>
+      <button class="secondary" id="resetStats" style="width:100%;margin-top:12px">Réinitialiser</button>
+    </div>
+  </section>
+
+  <section class="screen" id="rules">
+    <div class="topbar">
+      <button class="iconbtn" id="rulesBack">‹</button>
+      <div class="title">Comment jouer</div><div style="width:44px"></div>
+    </div>
+    <div class="sheet">
+      <div class="rule"><b>1.</b> Chaque joueur pose 4 coquillages.</div>
+      <div class="rule"><b>2.</b> La victoire n’est possible qu’une fois les 8 coquillages posés.</div>
+      <div class="rule"><b>3.</b> Ensuite, chaque coquillage se déplace d’une seule case, horizontalement ou verticalement.</div>
+      <div class="rule"><b>4.</b> Alignez vos 4 coquillages horizontalement, verticalement ou en diagonale.</div>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+
+/*
+TIDE Engine v0.8
+Standalone browser engine.
+*/
+const TIDE = (() => {
+  const N=4, CELLS=16;
+  const WIN_LINES=[
+    [0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],
+    [0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],
+    [0,5,10,15],[3,6,9,12]
+  ];
+  const ADJ=Array.from({length:16},(_,i)=>{
+    const r=Math.floor(i/4),c=i%4,a=[];
+    if(r>0)a.push((r-1)*4+c);
+    if(r<3)a.push((r+1)*4+c);
+    if(c>0)a.push(r*4+c-1);
+    if(c<3)a.push(r*4+c+1);
+    return a;
+  });
+  const CENTER=new Set([5,6,9,10]), CORNERS=new Set([0,3,12,15]);
+
+  const AI_PROFILES={
+    relax:{name:"Détente",depth:1,perfectChance:.20,noise:18,thinkMs:280},
+    clever:{name:"Malin",depth:2,perfectChance:.55,noise:8,thinkMs:360},
+    expert:{name:"Expert",depth:4,perfectChance:.88,noise:2.5,thinkMs:430},
+    master:{name:"Maître",depth:5,perfectChance:1,noise:0,thinkMs:520}
+  };
+
+  function initialState(firstPlayer=1){
+    return {board:Array(16).fill(0),turn:firstPlayer,placementsDone:0,ply:0,history:[]};
+  }
+  function cloneState(s){
+    return {board:s.board.slice(),turn:s.turn,placementsDone:s.placementsDone,ply:s.ply,history:s.history.slice()};
+  }
+  function other(p){return p===1?2:1}
+  function hasLine(board,p){return WIN_LINES.some(line=>line.every(i=>board[i]===p))}
+  function winningLine(board,p){
+    return WIN_LINES.find(line=>line.every(i=>board[i]===p))||null;
+  }
+  function legalMoves(s){
+    if(s.placementsDone<8){
+      const out=[]; for(let i=0;i<16;i++) if(s.board[i]===0) out.push({src:null,dst:i}); return out;
+    }
+    const out=[];
+    for(let i=0;i<16;i++){
+      if(s.board[i]!==s.turn) continue;
+      for(const j of ADJ[i]) if(s.board[j]===0) out.push({src:i,dst:j});
+    }
+    return out;
+  }
+  function applyMove(s,mv){
+    const ns=cloneState(s), mover=s.turn;
+    if(s.placementsDone<8){
+      ns.board[mv.dst]=mover; ns.placementsDone++;
+    }else{
+      ns.board[mv.src]=0; ns.board[mv.dst]=mover;
+    }
+    ns.turn=other(mover); ns.ply++;
+    ns.history.push({mover,src:mv.src,dst:mv.dst});
+    return ns;
+  }
+  function terminalAfterMove(prev,next,mover,opts={}){
+    const blockedLoses=opts.blockedPlayerLoses??true;
+    const doubleRule=opts.doubleLineRule??"mover_wins";
+    if(next.placementsDone<8) return null;
+    const a=hasLine(next.board,1),b=hasLine(next.board,2);
+    if(a&&b){
+      if(doubleRule==="draw") return {winner:0,reason:"double_line",line:null};
+      return {winner:mover,reason:"double_line_mover",line:winningLine(next.board,mover)};
+    }
+    if(a)return {winner:1,reason:"line",line:winningLine(next.board,1)};
+    if(b)return {winner:2,reason:"line",line:winningLine(next.board,2)};
+    if(next.placementsDone===8&&legalMoves(next).length===0){
+      return {winner:blockedLoses?other(next.turn):0,reason:blockedLoses?"blocked":"blocked_draw",line:null};
+    }
+    return null;
+  }
+  function linePotential(board,p){
+    const o=other(p),w=[0,.7,2.5,9,1000]; let score=0;
+    for(const line of WIN_LINES){
+      let m=0,t=0;
+      for(const i of line){ if(board[i]===p)m++; else if(board[i]===o)t++; }
+      if(t===0)score+=w[m]; if(m===0)score-=.9*w[t];
+    }
+    return score;
+  }
+  function mobility(board,p){
+    let n=0;
+    for(let i=0;i<16;i++)if(board[i]===p)for(const j of ADJ[i])if(board[j]===0)n++;
+    return n;
+  }
+  function evaluate(s,p){
+    let score=linePotential(s.board,p);
+    for(const i of CENTER){
+      if(s.board[i]===p)score+=.55;
+      else if(s.board[i]===other(p))score-=.46;
+    }
+    for(const i of CORNERS) if(s.board[i]===p)score+=.14;
+    if(s.placementsDone>=8){
+      score+=.22*mobility(s.board,p)-.15*mobility(s.board,other(p));
+    }
+    return score;
+  }
+  function key(s){return `${s.board.join("")}|${s.turn}|${s.placementsDone}`}
+  function minimax(s,root,depth,alpha,beta,seen,opts){
+    const k=key(s); if(seen.has(k))return 0;
+    if(depth<=0)return evaluate(s,root);
+    const moves=legalMoves(s);
+    if(!moves.length)return s.turn===root?-100000:100000;
+    const nsSeen=new Set(seen); nsSeen.add(k);
+    const maxing=s.turn===root; let best=maxing?-Infinity:Infinity;
+    for(const mv of moves){
+      const mover=s.turn,ns=applyMove(s,mv),t=terminalAfterMove(s,ns,mover,opts);
+      const val=t?(t.winner===0?0:(t.winner===root?100000+depth:-100000-depth))
+        :minimax(ns,root,depth-1,alpha,beta,nsSeen,opts);
+      if(maxing){best=Math.max(best,val);alpha=Math.max(alpha,best)}
+      else{best=Math.min(best,val);beta=Math.min(beta,best)}
+      if(beta<=alpha)break;
+    }
+    return best;
+  }
+  function chooseAiMove(s,level="clever",opts={}){
+    const cfg=AI_PROFILES[level]||AI_PROFILES.clever, root=s.turn, moves=legalMoves(s);
+    if(!moves.length)return null;
+    const scored=moves.map(mv=>{
+      const ns=applyMove(s,mv),t=terminalAfterMove(s,ns,root,opts);
+      const score=t?(t.winner===0?0:(t.winner===root?100000:-100000))
+        :minimax(ns,root,cfg.depth-1,-Infinity,Infinity,new Set(),opts);
+      return {mv,score};
+    }).sort((a,b)=>b.score-a.score);
+    const best=scored[0].score,bests=scored.filter(x=>Math.abs(x.score-best)<1e-9);
+    if(cfg.noise===0||Math.random()<cfg.perfectChance)return bests[Math.floor(Math.random()*bests.length)].mv;
+    const weights=scored.map(x=>Math.exp(-(best-x.score)/Math.max(.1,cfg.noise)));
+    const sum=weights.reduce((a,b)=>a+b,0); let pick=Math.random()*sum;
+    for(let i=0;i<scored.length;i++){pick-=weights[i];if(pick<=0)return scored[i].mv}
+    return scored[0].mv;
+  }
+  function moveNotation(mv){
+    const name=i=>String.fromCharCode(65+(i%4))+(Math.floor(i/4)+1);
+    return mv.src===null?`+${name(mv.dst)}`:`${name(mv.src)}>${name(mv.dst)}`;
+  }
+  return {N,CELLS,WIN_LINES,ADJ,AI_PROFILES,initialState,cloneState,other,hasLine,winningLine,legalMoves,applyMove,terminalAfterMove,evaluate,chooseAiMove,moveNotation};
+})();
+
+
+
+const $=id=>document.getElementById(id);
+function haptic(ms=12){try{navigator.vibrate?.(ms)}catch(e){}}
+const screens=["home","game","stats","rules"];
+function show(id){screens.forEach(x=>$(x).classList.toggle("active",x===id));}
+
+let mode="solo";
+let state=TIDE.initialState(1);
+let selected=null,ended=false,winningLine=null,firstPlayer=1;
+
+const stats=JSON.parse(localStorage.getItem("tide_stats_v10")||'{"wins":0,"losses":0,"draws":0,"played":0,"streak":0}');
+function saveStats(){localStorage.setItem("tide_stats_v10",JSON.stringify(stats));renderStats();}
+function renderStats(){
+  $("wins").textContent=stats.wins;$("losses").textContent=stats.losses;$("draws").textContent=stats.draws;
+  $("played").textContent=stats.played;$("streak").textContent=stats.streak;
+}
+renderStats();
+
+function resetGame(){
+  state=TIDE.initialState(firstPlayer);
+  selected=null;ended=false;winningLine=null;
+  render();
+  if(mode==="solo"&&state.turn===2)setTimeout(aiTurn,350);
+}
+function setMode(m){
+  mode=m;
+  $("levelSelect").style.display=m==="solo"?"":"none";
+  $("firstPlayerBtn").style.display=m==="solo"?"":"none";
+  resetGame();
+  show("game");
+}
+function legalDests(){
+  const moves=TIDE.legalMoves(state);
+  if(state.placementsDone<8&&state.turn===1)return new Set(moves.map(m=>m.dst));
+  if(mode==="duel"&&state.placementsDone<8)return new Set(moves.map(m=>m.dst));
+  if(selected!==null)return new Set(moves.filter(m=>m.src===selected).map(m=>m.dst));
+  return new Set();
+}
+function humanTurn(){
+  return mode==="duel" || state.turn===1;
+}
+function render(){
+  $("board").innerHTML="";
+  const dests=legalDests();
+  state.board.forEach((v,i)=>{
+    const b=document.createElement("button");
+    b.className="cell";
+    if(dests.has(i))b.classList.add("legal");
+    if(selected===i)b.classList.add("selected");
+    if(v){
+      const s=document.createElement("div");
+      s.className="shell "+(v===1?"p1":"p2")+(winningLine?.includes(i)?" win":"");
+      b.appendChild(s);
+    }
+    b.onclick=()=>tap(i);
+    $("board").appendChild(b);
+  });
+
+  const phase=state.placementsDone<8?"Pose":"Déplacement";
+  $("substatus").textContent=ended?"":phase+" · "+state.placementsDone+"/8 posés";
+  $("modeLabel").textContent=mode==="solo"?"IA · "+TIDE.AI_PROFILES[$("levelSelect").value].name:"Duel local";
+  if(ended)return;
+  if(mode==="solo"){
+    $("turnLabel").textContent=state.turn===1?"À vous":"À l’IA";
+    $("status").textContent=state.turn===1
+      ?(state.placementsDone<8?"Posez un coquillage.":"Choisissez un coquillage.")
+      :"";
+  }else{
+    $("turnLabel").textContent=state.turn===1?"Coquilles bleues":"Coquilles rouges";
+    $("status").textContent=state.placementsDone<8?"Posez un coquillage.":"Choisissez un coquillage.";
+  }
+}
+function finish(t){
+  ended=true;winningLine=t.line; haptic(t.winner? [18,35,30] : 18);
+  if(mode==="solo"){
+    stats.played++;
+    if(t.winner===1){stats.wins++;stats.streak++}
+    else if(t.winner===2){stats.losses++;stats.streak=0}
+    else stats.draws++;
+    saveStats();
+  }
+  $("status").textContent=t.winner===0?"Belle partie — match nul."
+    :mode==="solo"?(t.winner===1?"Belle partie — vous gagnez.":"Belle partie — l’IA gagne.")
+    :(t.winner===1?"Belle partie — les bleus gagnent.":"Belle partie — les rouges gagnent.");
+  $("substatus").textContent="Touchez Rejouer pour une nouvelle partie.";
+  render();
+}
+function play(mv){
+  const mover=state.turn,prev=state;
+  state=TIDE.applyMove(state,mv); selected=null; haptic(10);
+  const t=TIDE.terminalAfterMove(prev,state,mover);
+  if(t){finish(t);return false}
+  render();return true;
+}
+function tap(i){
+  if(ended||!humanTurn())return;
+  const moves=TIDE.legalMoves(state);
+  if(state.placementsDone<8){
+    const mv=moves.find(m=>m.dst===i);
+    if(mv&&play(mv)&&mode==="solo")setTimeout(aiTurn,TIDE.AI_PROFILES[$("levelSelect").value].thinkMs);
+    return;
+  }
+  if(state.board[i]===state.turn){selected=i;render();return}
+  if(selected!==null){
+    const mv=moves.find(m=>m.src===selected&&m.dst===i);
+    if(mv&&play(mv)&&mode==="solo")setTimeout(aiTurn,TIDE.AI_PROFILES[$("levelSelect").value].thinkMs);
+  }
+}
+function aiTurn(){
+  if(ended||mode!=="solo"||state.turn!==2)return;
+  const mv=TIDE.chooseAiMove(state,$("levelSelect").value);
+  if(mv)play(mv);
+}
+$("playSolo").onclick=()=>setMode("solo");
+$("playDuel").onclick=()=>setMode("duel");
+$("backHome").onclick=()=>show("home");
+$("openStats").onclick=()=>show("stats");
+$("statsBack").onclick=()=>show("home");
+$("rulesBtn").onclick=()=>show("rules");
+$("rulesBack").onclick=()=>show("game");
+$("newGameBtn").onclick=resetGame;
+$("levelSelect").onchange=()=>{render();};
+$("firstPlayerBtn").onclick=()=>{
+  firstPlayer=firstPlayer===1?2:1;
+  $("firstPlayerBtn").textContent=firstPlayer===1?"Je commence":"L’IA commence";
+  resetGame();
+};
+$("resetStats").onclick=()=>{
+  Object.assign(stats,{wins:0,losses:0,draws:0,played:0,streak:0});
+  saveStats();
+};
+render();
+</script>
+</body>
+</html>
