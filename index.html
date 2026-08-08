@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9ad7df">
-<title>TIDE v1.1</title>
+<title>TIDE v1.2</title>
 <style>
 :root{
   --sea1:#8ed4dc;--sea2:#63b8c4;--sand1:#f0dfb9;--sand2:#d7bc87;
@@ -90,7 +90,7 @@ button,select{font:inherit}
 .rule{margin:10px 0;line-height:1.45}
 @media(min-width:700px){.screen{padding-left:28px;padding-right:28px}.logo{font-size:64px}}
 
-/* --- TIDE v1.1 polish --- */
+/* --- TIDE v1.2 polish --- */
 :root{
   --tide-deep:#123f4b;
   --tide-blue:#176fa3;
@@ -171,6 +171,28 @@ button,select{font:inherit}
 .status{letter-spacing:.01em}
 .primary{background:linear-gradient(180deg,#184a55,#113741)}
 .secondary{border:1px solid rgba(255,255,255,.28)}
+
+
+/* --- TIDE v1.2 board geometry fix --- */
+.board{
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  grid-template-rows:repeat(4, minmax(0,1fr));
+  aspect-ratio:1 / 1 !important;
+}
+.cell{
+  width:100%;
+  aspect-ratio:1 / 1 !important;
+  height:auto !important;
+  min-width:0;
+  min-height:0;
+  border-radius:50% !important;
+  align-self:center;
+  justify-self:center;
+}
+.cell::before,
+.cell::after{
+  border-radius:50% !important;
+}
 
 </style>
 </head>
@@ -253,7 +275,7 @@ button,select{font:inherit}
       <div class="rule"><b>1.</b> Chaque joueur pose 4 coquillages.</div>
       <div class="rule"><b>2.</b> La victoire n’est possible qu’une fois les 8 coquillages posés.</div>
       <div class="rule"><b>3.</b> Ensuite, chaque coquillage se déplace d’une seule case, horizontalement ou verticalement.</div>
-      <div class="rule"><b>4.</b> Alignez vos 4 coquillages horizontalement, verticalement ou en diagonale.</div><div class="rule"><b>IA V1.1.</b> Expert et Maître jouent désormais sans erreurs aléatoires, avec recherche renforcée et défense tactique prioritaire.</div>
+      <div class="rule"><b>4.</b> Alignez vos 4 coquillages horizontalement, verticalement ou en diagonale.</div><div class="rule"><b>IA V1.2.</b> Expert et Maître utilisent une recherche stratégique renforcée, sans erreurs aléatoires ; Maître réanalyse ses meilleurs candidats plus profondément.</div>
     </div>
   </section>
 </div>
@@ -284,8 +306,8 @@ const TIDE = (() => {
   const AI_PROFILES={
     relax:{name:"Détente",depth:1,perfectChance:.18,noise:22,thinkMs:260},
     clever:{name:"Malin",depth:3,perfectChance:.62,noise:7,thinkMs:360},
-    expert:{name:"Expert",depth:6,perfectChance:1,noise:0,thinkMs:480},
-    master:{name:"Maître",depth:8,perfectChance:1,noise:0,thinkMs:620}
+    expert:{name:"Expert",depth:8,perfectChance:1,noise:0,thinkMs:500},
+    master:{name:"Maître",depth:11,perfectChance:1,noise:0,thinkMs:680}
   };
 
   function initialState(firstPlayer=1){
@@ -343,6 +365,14 @@ const TIDE = (() => {
       let m=0,t=0;
       for(const i of line){ if(board[i]===p)m++; else if(board[i]===o)t++; }
       if(t===0)score+=w[m]; if(m===0)score-=1.12*w[t];
+    }
+    // Positional structure: central squares and mobility matter strongly in the movement phase.
+    const centers=[5,6,9,10], corners=[0,3,12,15];
+    for(const i of centers){ if(s.b[i]===p)score+=2.2; else if(s.b[i]===o)score-=2.35; }
+    for(const i of corners){ if(s.b[i]===p)score+=.35; else if(s.b[i]===o)score-=.38; }
+    if(s.phase==="move"){
+      const my={...s,turn:p}, op={...s,turn:o};
+      score += .42*legalMoves(my).length - .46*legalMoves(op).length;
     }
     return score;
   }
@@ -442,8 +472,8 @@ let mode="solo";
 let state=TIDE.initialState(1);
 let selected=null,ended=false,winningLine=null,firstPlayer=1;
 
-const stats=JSON.parse(localStorage.getItem("tide_stats_v11")||'{"wins":0,"losses":0,"draws":0,"played":0,"streak":0}');
-function saveStats(){localStorage.setItem("tide_stats_v11",JSON.stringify(stats));renderStats();}
+const stats=JSON.parse(localStorage.getItem("tide_stats_v12")||'{"wins":0,"losses":0,"draws":0,"played":0,"streak":0}');
+function saveStats(){localStorage.setItem("tide_stats_v12",JSON.stringify(stats));renderStats();}
 function renderStats(){
   $("wins").textContent=stats.wins;$("losses").textContent=stats.losses;$("draws").textContent=stats.draws;
   $("played").textContent=stats.played;$("streak").textContent=stats.streak;
