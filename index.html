@@ -433,14 +433,6 @@ const TIDE = (() => {
       for(const i of line){ if(board[i]===p)m++; else if(board[i]===o)t++; }
       if(t===0)score+=w[m]; if(m===0)score-=1.12*w[t];
     }
-    // Positional structure: central squares and mobility matter strongly in the movement phase.
-    const centers=[5,6,9,10], corners=[0,3,12,15];
-    for(const i of centers){ if(s.b[i]===p)score+=2.2; else if(s.b[i]===o)score-=2.35; }
-    for(const i of corners){ if(s.b[i]===p)score+=.35; else if(s.b[i]===o)score-=.38; }
-    if(s.phase==="move"){
-      const my={...s,turn:p}, op={...s,turn:o};
-      score += .42*legalMoves(my).length - .46*legalMoves(op).length;
-    }
     return score;
   }
   function mobility(board,p){
