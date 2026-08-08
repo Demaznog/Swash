@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9ad7df">
-<title>TIDE v1.2</title>
+<title>TIDE v1.2 · visual rebuild</title>
 <style>
 :root{
   --sea1:#8ed4dc;--sea2:#63b8c4;--sand1:#f0dfb9;--sand2:#d7bc87;
@@ -90,7 +90,7 @@ button,select{font:inherit}
 .rule{margin:10px 0;line-height:1.45}
 @media(min-width:700px){.screen{padding-left:28px;padding-right:28px}.logo{font-size:64px}}
 
-/* --- TIDE v1.2 polish --- */
+/* --- TIDE v1.2 · visual rebuild polish --- */
 :root{
   --tide-deep:#123f4b;
   --tide-blue:#176fa3;
@@ -173,7 +173,7 @@ button,select{font:inherit}
 .secondary{border:1px solid rgba(255,255,255,.28)}
 
 
-/* --- TIDE v1.2 board geometry fix --- */
+/* --- TIDE v1.2 · visual rebuild board geometry fix --- */
 .board{
   grid-template-columns:repeat(4, minmax(0,1fr));
   grid-template-rows:repeat(4, minmax(0,1fr));
@@ -192,6 +192,73 @@ button,select{font:inherit}
 .cell::before,
 .cell::after{
   border-radius:50% !important;
+}
+
+
+/* ===== TIDE v1.2 · visual rebuild VISUAL REBUILD ===== */
+html,body{background:#efc979!important}
+body{
+  background:
+    radial-gradient(circle at 18% 55%,rgba(255,255,255,.20) 0 1px,transparent 2px) 0 0/18px 18px,
+    linear-gradient(180deg,#1aa7c5 0,#64d3dc 18%,#dff7ef 24%,#f6d68d 27%,#edc476 100%)!important;
+}
+.wave{
+  top:20%!important;height:92px!important;
+  background:rgba(255,255,255,.72)!important;
+  box-shadow:0 12px 30px rgba(0,119,147,.12)!important;
+}
+.game-card{width:min(88vw,620px)!important}
+.board{
+  width:min(76vw,560px)!important;
+  height:min(76vw,560px)!important;
+  aspect-ratio:1/1!important;
+  margin:0 auto!important;
+  padding:10px!important;
+  display:grid!important;
+  grid-template-columns:repeat(4,1fr)!important;
+  grid-template-rows:repeat(4,1fr)!important;
+  gap:clamp(10px,1.7vw,18px)!important;
+}
+.cell{
+  box-sizing:border-box!important;
+  width:100%!important;height:100%!important;
+  aspect-ratio:1/1!important;
+  min-width:0!important;min-height:0!important;
+  padding:0!important;margin:0!important;
+  border:0!important;border-radius:50%!important;
+  align-self:stretch!important;justify-self:stretch!important;
+  background:
+    radial-gradient(circle at 46% 55%,#d7aa5c 0 58%,#c18e3e 67%,#f7dfa5 70%,#a97731 75%,transparent 77%)!important;
+  box-shadow:
+    inset 0 12px 15px rgba(100,62,16,.35),
+    inset 0 -5px 8px rgba(255,237,188,.30),
+    0 2px 0 rgba(255,255,255,.52)!important;
+  outline:none!important;
+}
+.cell.legal{
+  outline:3px solid rgba(13,72,103,.30)!important;
+  outline-offset:2px!important;
+}
+.cell.selected{
+  outline:4px solid rgba(13,72,103,.72)!important;
+  outline-offset:3px!important;
+}
+.shell{width:70%!important;height:70%!important;aspect-ratio:1/1!important}
+.logo{font-size:clamp(44px,7vw,74px)!important;color:#0b4164!important}
+.title{color:#0b4164!important;letter-spacing:.15em!important}
+.info{font-size:16px!important}
+.turn,.level-pill{
+  background:rgba(255,255,255,.82)!important;
+  padding:9px 15px!important;border-radius:999px!important;
+  box-shadow:0 4px 12px rgba(65,48,20,.10)!important
+}
+.turn{background:#0c4a70!important;color:#fff!important}
+.actions button,.actions select{
+  background:rgba(255,255,255,.86)!important;
+  box-shadow:0 5px 14px rgba(69,47,17,.12)!important
+}
+@media(max-width:600px){
+  .board{width:min(88vw,500px)!important;height:min(88vw,500px)!important;gap:10px!important}
 }
 
 </style>
