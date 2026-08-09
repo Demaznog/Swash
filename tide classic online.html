@@ -1,0 +1,1089 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#9ad7df">
+<title>TIDE V2.0</title>
+<style>
+:root{
+  --sea1:#8ed4dc;--sea2:#63b8c4;--sand1:#f0dfb9;--sand2:#d7bc87;
+  --ink:#173b40;--glass:rgba(255,255,255,.22);--glass2:rgba(255,255,255,.56);
+  font-family:Inter,ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:linear-gradient(180deg,var(--sea1),var(--sea2) 29%,var(--sand1) 30%,var(--sand2));color:var(--ink)}
+body{min-height:100svh;overflow-x:hidden}
+button,select{font:inherit}
+.app{min-height:100svh;position:relative;overflow:hidden}
+.wave{position:absolute;left:-10%;right:-10%;height:76px;top:26%;background:rgba(255,255,255,.35);filter:blur(1px);border-radius:50%;transform:rotate(-2deg)}
+.wave::after{content:"";position:absolute;inset:18px 0 auto 0;height:28px;background:rgba(255,255,255,.26);border-radius:50%}
+.screen{position:relative;z-index:2;min-height:100svh;display:none;padding:max(20px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom))}
+.screen.active{display:flex;flex-direction:column}
+.home{justify-content:space-between}
+.brand{margin-top:6vh}
+.logo{font-size:52px;font-weight:900;letter-spacing:.08em}
+.tag{margin-top:6px;font-size:15px;opacity:.7}
+.hero{display:grid;place-items:center;flex:1}
+.mini-board{width:min(62vw,280px);aspect-ratio:1;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;transform:rotate(-2deg)}
+.mini-hole,.cell{border-radius:50%;background:rgba(116,81,38,.13);box-shadow:inset 0 7px 12px rgba(86,55,21,.14),0 2px 0 rgba(255,255,255,.25)}
+.cta{display:grid;gap:12px;margin-bottom:12px}
+.primary,.secondary,.ghost{
+  border:0;border-radius:18px;padding:16px 18px;font-weight:800
+}
+.primary{background:#173b40;color:white;box-shadow:0 8px 24px rgba(20,58,63,.22)}
+.secondary{background:var(--glass2);color:var(--ink);backdrop-filter:blur(12px)}
+.ghost{background:transparent;color:var(--ink);padding:10px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.iconbtn{border:0;background:rgba(255,255,255,.28);backdrop-filter:blur(10px);width:44px;height:44px;border-radius:50%;font-size:20px}
+.title{font-weight:900;letter-spacing:.03em}
+.game-wrap{flex:1;display:grid;place-items:center}
+.game-card{width:min(94vw,540px)}
+.info{display:flex;justify-content:space-between;align-items:center;margin:8px 4px 18px;font-size:14px}
+.turn{font-weight:800}
+.level-pill{background:rgba(255,255,255,.35);padding:8px 11px;border-radius:999px}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;aspect-ratio:1;padding:8px}
+.cell{border:0;position:relative;display:grid;place-items:center;transition:transform .16s ease,outline .16s ease}
+.cell:active{transform:scale(.96)}
+.cell.legal{outline:3px solid rgba(23,59,64,.28);outline-offset:2px}
+.cell.selected{outline:4px solid rgba(23,59,64,.48);outline-offset:3px}
+.shell{
+ width:78%;aspect-ratio:1;position:relative;
+ border-radius:58% 42% 48% 52% / 48% 50% 50% 52%;
+ transform:rotate(-12deg);
+ box-shadow:0 10px 15px rgba(49,35,20,.25),0 3px 4px rgba(49,35,20,.16),inset 4px 5px 7px rgba(255,255,255,.35),inset -6px -7px 10px rgba(20,20,20,.2);
+ transition:transform .2s ease,filter .2s ease;
+ animation:shellIn .23s cubic-bezier(.2,.8,.2,1);
+ overflow:hidden;
+}
+.shell::before{
+ content:"";position:absolute;left:18%;top:16%;width:56%;height:56%;border-radius:50%;
+ background:
+   radial-gradient(circle at 48% 48%,rgba(255,255,255,.32) 0 7%,transparent 8%),
+   repeating-radial-gradient(circle at 50% 50%,transparent 0 7%,rgba(255,255,255,.27) 8% 10%,rgba(30,25,25,.13) 11% 13%,transparent 14% 18%);
+ transform:rotate(8deg);
+}
+.shell::after{
+ content:"";position:absolute;right:-3%;bottom:6%;width:39%;height:31%;
+ border-radius:58% 42% 55% 45% / 45% 50% 50% 55%;
+ background:radial-gradient(ellipse at 38% 42%,rgba(17,22,24,.82),rgba(34,35,31,.5) 45%,rgba(255,255,255,.1) 48%,transparent 51%);
+ transform:rotate(-10deg);
+ box-shadow:-3px -2px 3px rgba(255,255,255,.18);
+}
+.shell.p1{background:
+ linear-gradient(118deg,rgba(255,255,255,.22),transparent 30%),
+ repeating-radial-gradient(ellipse at 42% 44%,#80d7ff 0 8px,#2687d8 9px 14px,#0b4f9d 15px 20px,#062e66 21px 24px)}
+.shell.p2{background:
+ linear-gradient(118deg,rgba(255,255,255,.24),transparent 30%),
+ repeating-radial-gradient(ellipse at 42% 44%,#ffab92 0 8px,#ed513a 9px 14px,#a91f23 15px 20px,#631318 21px 24px)}
+.shell.win{filter:brightness(1.22) drop-shadow(0 0 12px rgba(255,255,255,.95));transform:rotate(-12deg) scale(1.1);animation:winPulse .9s ease-in-out infinite alternate}
+@keyframes shellIn{from{transform:rotate(-20deg) scale(.72);opacity:.25}to{transform:rotate(-12deg) scale(1);opacity:1}}
+@keyframes winPulse{from{filter:brightness(1.08) drop-shadow(0 0 5px rgba(255,255,255,.5))}to{filter:brightness(1.34) drop-shadow(0 0 16px rgba(255,255,255,1))}}
+.status{text-align:center;min-height:28px;font-weight:800;margin-top:16px}
+.substatus{text-align:center;min-height:20px;font-size:13px;opacity:.65}
+.actions{display:flex;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.actions button,.actions select{border:0;border-radius:14px;padding:11px 13px;background:rgba(255,255,255,.45);color:var(--ink);font-weight:750}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}
+.stat{background:rgba(255,255,255,.38);backdrop-filter:blur(10px);border-radius:18px;padding:18px 10px;text-align:center}
+.stat b{display:block;font-size:28px}.stat span{font-size:12px;opacity:.65}
+.sheet{background:rgba(255,255,255,.48);backdrop-filter:blur(18px);border-radius:24px;padding:20px;margin-top:22px}
+.rule{margin:10px 0;line-height:1.45}
+@media(min-width:700px){.screen{padding-left:28px;padding-right:28px}.logo{font-size:64px}}
+
+/* --- TIDE V2.0 polish --- */
+:root{
+  --tide-deep:#123f4b;
+  --tide-blue:#176fa3;
+  --tide-red:#d94a3a;
+}
+.studio-mark{
+  text-align:center;
+  font-size:11px;
+  letter-spacing:.18em;
+  font-weight:800;
+  opacity:.46;
+  margin:0 0 12px;
+}
+.logo{
+  letter-spacing:.18em;
+  text-shadow:0 2px 0 rgba(255,255,255,.28);
+}
+.mini-board{animation:floatBoard 5.5s ease-in-out infinite}
+@keyframes floatBoard{50%{transform:rotate(1deg) translateY(-4px)}}
+.wave{animation:tideWave 7s ease-in-out infinite alternate}
+.wave::after{animation:tideFoam 5.5s ease-in-out infinite alternate}
+@keyframes tideWave{from{transform:translateX(-1.5%) rotate(-2deg)}to{transform:translateX(1.5%) rotate(1deg)}}
+@keyframes tideFoam{from{transform:translateX(1%)}to{transform:translateX(-2%)}}
+.cell{
+  overflow:visible;
+}
+.shell{
+  position:relative;
+  width:75%;
+  border-radius:58% 42% 48% 52% / 57% 46% 54% 43%;
+  transform:rotate(-8deg);
+  animation:shellDrop .24s cubic-bezier(.2,.85,.3,1.15);
+}
+.shell::before{
+  content:"";
+  position:absolute;
+  left:22%;top:20%;
+  width:47%;height:47%;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,.34);
+  box-shadow:
+    inset 0 0 0 4px rgba(20,20,20,.08),
+    inset 0 0 0 9px rgba(255,255,255,.06);
+  transform:rotate(18deg);
+}
+.shell::after{
+  content:"";
+  position:absolute;
+  right:-7%;bottom:9%;
+  width:34%;height:24%;
+  border-radius:55% 65% 65% 45%;
+  background:rgba(35,22,16,.52);
+  box-shadow:inset 3px 2px 5px rgba(0,0,0,.32);
+  transform:rotate(-11deg);
+}
+.shell.p1{
+  background:
+    radial-gradient(circle at 34% 28%,rgba(255,255,255,.94) 0 8%,transparent 9%),
+    repeating-radial-gradient(ellipse at 45% 54%,#63b8e8 0 6px,#2c88c3 7px 11px,#17659b 12px 15px,#0e4b79 16px 18px);
+}
+.shell.p2{
+  background:
+    radial-gradient(circle at 34% 28%,#ffd4c8 0 8%,transparent 9%),
+    repeating-radial-gradient(ellipse at 45% 54%,#f07a67 0 6px,#db4d3d 7px 11px,#b9322c 12px 15px,#7f211f 16px 18px);
+}
+.shell.win{
+  animation:winningShell .8s ease-in-out infinite alternate;
+}
+@keyframes shellDrop{
+  from{transform:translateY(-12px) rotate(-14deg) scale(.78);opacity:.15}
+  to{transform:translateY(0) rotate(-8deg) scale(1);opacity:1}
+}
+@keyframes winningShell{
+  from{filter:brightness(1.08) drop-shadow(0 0 4px rgba(255,255,255,.65));transform:rotate(-8deg) scale(1.02)}
+  to{filter:brightness(1.26) drop-shadow(0 0 14px rgba(255,255,255,.95));transform:rotate(-4deg) scale(1.09)}
+}
+.cell.selected .shell{transform:rotate(-4deg) translateY(-5px) scale(1.06)}
+.status{letter-spacing:.01em}
+.primary{background:linear-gradient(180deg,#184a55,#113741)}
+.secondary{border:1px solid rgba(255,255,255,.28)}
+
+
+/* --- TIDE V2.0 board geometry fix --- */
+.board{
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  grid-template-rows:repeat(4, minmax(0,1fr));
+  aspect-ratio:1 / 1 !important;
+}
+.cell{
+  width:100%;
+  aspect-ratio:1 / 1 !important;
+  height:auto !important;
+  min-width:0;
+  min-height:0;
+  border-radius:50% !important;
+  align-self:center;
+  justify-self:center;
+}
+.cell::before,
+.cell::after{
+  border-radius:50% !important;
+}
+
+
+/* ===== TIDE V2.0 VISUAL REBUILD ===== */
+html,body{background:#efc979!important}
+body{
+  background:
+    radial-gradient(circle at 18% 55%,rgba(255,255,255,.20) 0 1px,transparent 2px) 0 0/18px 18px,
+    linear-gradient(180deg,#1aa7c5 0,#64d3dc 18%,#dff7ef 24%,#f6d68d 27%,#edc476 100%)!important;
+}
+.wave{
+  top:20%!important;height:92px!important;
+  background:rgba(255,255,255,.72)!important;
+  box-shadow:0 12px 30px rgba(0,119,147,.12)!important;
+}
+.game-card{width:min(88vw,620px)!important}
+.board{
+  width:min(76vw,560px)!important;
+  height:min(76vw,560px)!important;
+  aspect-ratio:1/1!important;
+  margin:0 auto!important;
+  padding:10px!important;
+  display:grid!important;
+  grid-template-columns:repeat(4,1fr)!important;
+  grid-template-rows:repeat(4,1fr)!important;
+  gap:clamp(10px,1.7vw,18px)!important;
+}
+.cell{
+  box-sizing:border-box!important;
+  width:100%!important;height:100%!important;
+  aspect-ratio:1/1!important;
+  min-width:0!important;min-height:0!important;
+  padding:0!important;margin:0!important;
+  border:0!important;border-radius:50%!important;
+  align-self:stretch!important;justify-self:stretch!important;
+  background:
+    radial-gradient(circle at 46% 55%,#d7aa5c 0 58%,#c18e3e 67%,#f7dfa5 70%,#a97731 75%,transparent 77%)!important;
+  box-shadow:
+    inset 0 12px 15px rgba(100,62,16,.35),
+    inset 0 -5px 8px rgba(255,237,188,.30),
+    0 2px 0 rgba(255,255,255,.52)!important;
+  outline:none!important;
+}
+.cell.legal{
+  outline:3px solid rgba(13,72,103,.30)!important;
+  outline-offset:2px!important;
+}
+.cell.selected{
+  outline:4px solid rgba(13,72,103,.72)!important;
+  outline-offset:3px!important;
+}
+.shell{width:70%!important;height:70%!important;aspect-ratio:1/1!important}
+.logo{font-size:clamp(44px,7vw,74px)!important;color:#0b4164!important}
+.title{color:#0b4164!important;letter-spacing:.15em!important}
+.info{font-size:16px!important}
+.turn,.level-pill{
+  background:rgba(255,255,255,.82)!important;
+  padding:9px 15px!important;border-radius:999px!important;
+  box-shadow:0 4px 12px rgba(65,48,20,.10)!important
+}
+.turn{background:#0c4a70!important;color:#fff!important}
+.actions button,.actions select{
+  background:rgba(255,255,255,.86)!important;
+  box-shadow:0 5px 14px rgba(69,47,17,.12)!important
+}
+@media(max-width:600px){
+  .board{width:min(88vw,500px)!important;height:min(88vw,500px)!important;gap:10px!important}
+}
+
+
+/* ===== TIDE V2 GAMEPLAY FEEDBACK ===== */
+.cell.no-return{
+  box-shadow:
+    inset 0 12px 15px rgba(100,62,16,.35),
+    inset 0 -5px 8px rgba(255,237,188,.30),
+    0 0 0 4px rgba(54,157,183,.22),
+    0 2px 0 rgba(255,255,255,.52)!important;
+}
+.cell.no-return::after{
+  content:"↶"!important;
+  position:absolute!important;
+  inset:0!important;
+  display:grid!important;
+  place-items:center!important;
+  color:rgba(12,74,112,.55)!important;
+  font-size:clamp(20px,4vw,34px)!important;
+  font-weight:900!important;
+  background:radial-gradient(circle,rgba(218,247,245,.24),transparent 58%)!important;
+  border-radius:50%!important;
+  pointer-events:none!important;
+}
+.cell.pressure .shell{
+  animation:tidePressure .7s ease-in-out infinite alternate!important;
+}
+@keyframes tidePressure{
+  from{filter:brightness(1) drop-shadow(0 0 2px rgba(255,255,255,.25))}
+  to{filter:brightness(1.18) drop-shadow(0 0 10px rgba(255,255,255,.8))}
+}
+
+
+/* ===== TIDE V2 BETA ===== */
+.info{display:grid!important;grid-template-columns:auto 1fr auto auto!important;align-items:center!important;gap:8px!important}
+.clock-box{
+  display:flex;align-items:center;gap:7px;
+  padding:8px 11px;border-radius:14px;
+  background:rgba(255,255,255,.68);
+  font-variant-numeric:tabular-nums;
+  box-shadow:0 3px 12px rgba(65,48,20,.08);
+  transition:.18s ease;
+}
+.clock-box.active{background:#0c4a70;color:white;transform:scale(1.035)}
+.clock-box.danger{animation:clockPulse .55s ease-in-out infinite alternate}
+.clock-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.clock-dot.blue{background:#1f7fb8}.clock-dot.red{background:#d94c3d}
+@keyframes clockPulse{to{transform:scale(1.07)}}
+.cell.wake{
+  box-shadow:
+    inset 0 12px 15px rgba(100,62,16,.35),
+    inset 0 -5px 8px rgba(255,237,188,.30),
+    0 0 0 3px rgba(95,199,211,.17),
+    0 2px 0 rgba(255,255,255,.52)!important;
+}
+.cell.no-return::after{content:"×"!important;font-size:clamp(22px,4vw,36px)!important}
+.export-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.export-row button{width:100%;border:0;border-radius:14px;padding:12px;font-weight:750}
+@media(max-width:560px){
+  .info{grid-template-columns:1fr 1fr!important}
+  .clock-box{justify-content:center}
+  .turn,.level-pill{text-align:center}
+  .actions{gap:8px!important}
+}
+
+
+/* ---- TIDE v2 : fond et coquillages ---- */
+.wave,.wave::after{display:none!important;animation:none!important}
+body{
+  background:linear-gradient(180deg,#1598ba 0,#5bcbd7 19%,#f3d68e 30%,#ecc276 100%)!important;
+}
+body::after{
+  content:"";position:fixed;left:0;right:0;top:0;height:31%;
+  pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.16) 38%,
+    rgba(255,255,255,.55) 70%,
+    rgba(255,255,255,.92) 92%,
+    rgba(255,255,255,0) 100%);
+}
+.screen{position:relative;z-index:1}
+.app{background:transparent}
+/* en-tete aligne sur TIDE+ */
+.brand{margin-top:4vh}
+.logo{font-size:clamp(64px,13vw,114px)!important;font-weight:950!important;letter-spacing:.07em!important;
+ line-height:.85!important;color:#0d4660!important;text-shadow:none!important}
+.chip{display:inline-block;margin-top:12px;padding:7px 15px;border-radius:999px;
+ background:rgba(13,70,95,.90);color:#fff;font-size:11px;font-weight:900;letter-spacing:.17em;text-transform:uppercase}
+.tag{margin-top:12px!important;font-size:12px!important;font-weight:850!important;letter-spacing:.06em!important;opacity:.62!important}
+.studio-mark{letter-spacing:.17em;text-transform:none;opacity:.5}
+/* indice de coup jouable : pastille pleine + cerne */
+.cell.legal{outline:3px solid rgba(13,70,95,.50)!important;outline-offset:2px!important}
+.cell.legal::before{
+  content:""!important;position:absolute!important;left:50%!important;top:50%!important;
+  width:32%!important;height:32%!important;transform:translate(-50%,-50%)!important;
+  border-radius:50%!important;background:rgba(13,70,95,.60)!important;
+  box-shadow:0 0 0 3px rgba(255,255,255,.66)!important;pointer-events:none!important;z-index:2!important}
+.cell.legal:has(.shell)::before,.cell.legal:has(.piece)::before{display:none!important}
+.cell.selected{outline:4px solid rgba(7,74,104,.85)!important;outline-offset:3px!important}
+
+.shell{
+  width:78%;aspect-ratio:1;border-radius:50%;transform:none;animation:none;
+  background-repeat:no-repeat;background-position:center;background-size:100% 100%;
+  box-shadow:none;filter:drop-shadow(0 4px 5px rgba(54,33,12,.34))
+}
+.shell::before,.shell::after{content:none!important}
+.shell.p1{background-image:url("data:image/svg+xml,%3Csvg%20preserveAspectRatio%3D%22xMidYMid%20meet%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2246.5%22%20fill%3D%22%2329baf2%22%20stroke%3D%22%23064a76%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M87.9%2048.6%20L84.1%2038.1%20L77.6%2029.6%20L69.3%2023.6%20L59.9%2020.4%20L50.5%2020.1%20L41.7%2022.6%20L34.4%2027.3%20L29.0%2033.6%20L25.9%2041.0%20L25.0%2048.6%20L26.4%2055.9%20L29.8%2062.1%20L34.6%2066.9%20L40.4%2069.9%20L46.5%2071.1%20L52.4%2070.4%20L57.7%2068.1%20L61.9%2064.5%20L64.7%2060.0%20L66.0%2055.1%20L65.9%2050.3%20L64.3%2045.8%20L61.7%2042.2%20L58.2%2039.7%20L54.4%2038.3%20L50.4%2038.1%20L46.7%2039.1%20L43.6%2041.0%20L41.3%2043.6%20L40.0%2046.7%20L39.6%2049.9%20L40.1%2052.9%20L41.5%2055.5%20L43.5%2057.5%20L45.9%2058.8%20L48.4%2059.4%20L50.9%2059.1%20L53.1%2058.2%20L54.9%2056.7%20L56.1%2054.9%22%20fill%3D%22none%22%20stroke%3D%22%231490cc%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E")}
+.shell.p2{background-image:url("data:image/svg+xml,%3Csvg%20preserveAspectRatio%3D%22xMidYMid%20meet%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2246.5%22%20fill%3D%22%23ff6a42%22%20stroke%3D%22%238c1c08%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22M87.9%2048.6%20L84.1%2038.1%20L77.6%2029.6%20L69.3%2023.6%20L59.9%2020.4%20L50.5%2020.1%20L41.7%2022.6%20L34.4%2027.3%20L29.0%2033.6%20L25.9%2041.0%20L25.0%2048.6%20L26.4%2055.9%20L29.8%2062.1%20L34.6%2066.9%20L40.4%2069.9%20L46.5%2071.1%20L52.4%2070.4%20L57.7%2068.1%20L61.9%2064.5%20L64.7%2060.0%20L66.0%2055.1%20L65.9%2050.3%20L64.3%2045.8%20L61.7%2042.2%20L58.2%2039.7%20L54.4%2038.3%20L50.4%2038.1%20L46.7%2039.1%20L43.6%2041.0%20L41.3%2043.6%20L40.0%2046.7%20L39.6%2049.9%20L40.1%2052.9%20L41.5%2055.5%20L43.5%2057.5%20L45.9%2058.8%20L48.4%2059.4%20L50.9%2059.1%20L53.1%2058.2%20L54.9%2056.7%20L56.1%2054.9%22%20fill%3D%22none%22%20stroke%3D%22%23e04a26%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E")}
+
+/* alignement gagnant : les 4 coquillages sont cercles */
+.shell.win,.piece.win{
+  box-shadow:0 0 0 5px #fffdf5,0 0 0 9px rgba(13,70,95,.92)!important;
+  filter:drop-shadow(0 0 13px rgba(255,255,255,.95))!important;
+  animation:winRing .85s ease-in-out infinite alternate!important}
+@keyframes winRing{
+  from{transform:scale(1)}
+  to{transform:scale(1.07);box-shadow:0 0 0 6px #fffdf5,0 0 0 11px rgba(13,70,95,.92)}}
+.cell:has(.win){outline:0!important}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="wave"></div>
+
+  <section class="screen home active" id="home">
+    <div class="brand">
+      <div class="logo">TIDE</div>
+      <div class="chip">Plateau 4×4</div>
+      <div class="tag">Calme en surface. Stratégique en profondeur.</div>
+    </div>
+    <div class="hero">
+      <div class="mini-board">
+        <div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div>
+        <div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div>
+        <div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div>
+        <div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div><div class="mini-hole"></div>
+      </div>
+    </div>
+    <div class="studio-mark">by Toka Lab</div><div class="cta">
+      <button class="primary" id="playSolo">Jouer contre l’IA</button>
+      <button class="secondary" id="playDuel">Duel</button>
+      <button class="secondary" id="playOnline">Duel en ligne</button>
+      <button class="ghost" id="openStats">Règlement</button>
+    </div>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="topbar">
+      <button class="iconbtn" id="backHome">‹</button>
+      <div class="title">TIDE</div>
+      <button class="iconbtn" id="rulesBtn">?</button>
+    </div>
+    <div class="game-wrap">
+      <div class="game-card">
+        <div class="info">
+          <div class="clock-box active" id="clock1"><span class="clock-dot blue"></span><b id="time1">5:00</b></div>
+          <div class="turn" id="turnLabel">À vous</div>
+          <div class="level-pill" id="modeLabel">IA · Malin</div>
+          <div class="clock-box" id="clock2"><b id="time2">5:00</b><span class="clock-dot red"></span></div>
+        </div>
+        <div class="board" id="board"></div>
+        <div class="status" id="status"></div>
+        <div class="substatus" id="substatus"></div>
+        <div class="actions">
+          <select id="levelSelect" aria-label="Niveau IA">
+            <option value="relax">Détente</option>
+            <option value="clever" selected>Malin</option>
+            <option value="expert">Expert</option>
+            <option value="master">Maître</option>
+          </select>
+          <select id="timerSelect" aria-label="Cadence">
+            <option value="5+0" selected>5 min</option>
+            <option value="3+0">3 min</option>
+            <option value="off">Sans chrono</option>
+          </select>
+          <button id="firstPlayerBtn">Je commence</button>
+          <button id="newGameBtn">Rejouer</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="stats">
+    <div class="topbar">
+      <button class="iconbtn" id="statsBack">‹</button>
+      <div class="title">Statistiques</div><div style="width:44px"></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat"><b id="wins">0</b><span>Victoires</span></div>
+      <div class="stat"><b id="losses">0</b><span>Défaites</span></div>
+      <div class="stat"><b id="draws">0</b><span>Nuls</span></div>
+    </div>
+    <div class="sheet">
+      <div class="rule"><b>Parties jouées</b><br><span id="played">0</span></div>
+      <div class="rule"><b>Série actuelle</b><br><span id="streak">0</span></div>
+      <div class="rule"><b>Parties enregistrées pour le Lab</b><br><span id="storedGames">0</span></div>
+      <div class="export-row">
+        <button class="secondary" id="exportJson">Exporter JSON</button>
+        <button class="secondary" id="exportCsv">Exporter CSV</button>
+      </div>
+      <button class="secondary" id="resetStats" style="width:100%;margin-top:12px">Réinitialiser les stats</button>
+    </div>
+  </section>
+
+  <section class="screen" id="online">
+    <div class="topbar">
+      <button class="iconbtn" id="onlineBack">‹</button>
+      <div class="title">Duel en ligne</div><div style="width:44px"></div>
+    </div>
+    <div class="sheet">
+      <div class="rule"><b>Créer une partie</b><br>Vous jouez les bleus et commencez.
+        <button class="primary" id="netCreate" style="width:100%;margin-top:10px">Créer</button></div>
+      <div class="rule"><b>Rejoindre</b><br>Saisissez le code reçu.
+        <input id="netCode" maxlength="4" autocapitalize="characters" autocomplete="off"
+          placeholder="CODE" style="width:100%;margin-top:10px;padding:14px;border:0;border-radius:14px;
+          text-align:center;font-size:26px;font-weight:900;letter-spacing:.3em;text-transform:uppercase;
+          background:rgba(255,255,255,.85);color:#0d4660">
+        <button class="secondary" id="netJoin" style="width:100%;margin-top:8px">Rejoindre</button></div>
+      <div class="rule" id="netInfo" style="text-align:center;font-weight:800">&nbsp;</div>
+    </div>
+  </section>
+
+  <section class="screen" id="rules">
+    <div class="topbar">
+      <button class="iconbtn" id="rulesBack">‹</button>
+      <div class="title">Comment jouer</div><div style="width:44px"></div>
+    </div>
+    <div class="sheet">
+      <div class="rule"><b>1.</b> Chaque joueur pose 4 coquillages.</div>
+      <div class="rule"><b>2.</b> La victoire n’est possible qu’une fois les 8 coquillages posés.</div>
+      <div class="rule"><b>3.</b> Ensuite, chaque coquillage se déplace d’une seule case, horizontalement ou verticalement.</div>
+      <div class="rule"><b>4.</b> Alignez vos 4 coquillages horizontalement, verticalement ou en diagonale.</div>
+        <div class="rule"><b>5.</b> Anti-retour : un coquillage déplacé ne peut pas revenir immédiatement sur la case qu’il vient de quitter à votre tour suivant.</div>
+        <div class="rule"><b>6.</b> Joueur bloqué : celui qui n’a plus aucun coup légal à son tour perd la partie.</div><div class="rule"><b>7.</b> Double alignement : si un déplacement aligne les deux camps en même temps, c’est le joueur qui vient de jouer qui gagne.</div><div class="rule"><b>8.</b> Nulle par triple répétition : si la même position revient une troisième fois (mêmes coquillages, même joueur au trait, mêmes interdictions d’anti-retour), la partie est nulle.</div><div class="rule"><b>9.</b> Chrono : 5 min par joueur, sans incrément. À 0:00, la partie est perdue. Modes 3 min et Libre disponibles.</div><div class="rule"><b>IA V2.</b> Les 4 niveaux respectent l’anti-retour. Expert et Maître jouent sans erreurs aléatoires. La variante V2 a été résolue hors ligne comme nulle avec jeu parfait ; cette version navigateur utilise encore le moteur de recherche local.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+
+/*
+TIDE Engine v0.8
+Standalone browser engine.
+*/
+const TIDE = (() => {
+  const N=4, CELLS=16;
+  const WIN_LINES=[
+    [0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],
+    [0,4,8,12],[1,5,9,13],[2,6,10,14],[3,7,11,15],
+    [0,5,10,15],[3,6,9,12]
+  ];
+  const ADJ=Array.from({length:16},(_,i)=>{
+    const r=Math.floor(i/4),c=i%4,a=[];
+    if(r>0)a.push((r-1)*4+c);
+    if(r<3)a.push((r+1)*4+c);
+    if(c>0)a.push(r*4+c-1);
+    if(c<3)a.push(r*4+c+1);
+    return a;
+  });
+  const CENTER=new Set([5,6,9,10]), CORNERS=new Set([0,3,12,15]);
+
+  const AI_PROFILES={
+    relax:{name:"Détente",placeDepth:1,moveDepth:2,perfectChance:.18,noise:22,thinkMs:220},
+    clever:{name:"Malin",placeDepth:2,moveDepth:4,perfectChance:.62,noise:7,thinkMs:300},
+    expert:{name:"Expert",placeDepth:4,moveDepth:6,perfectChance:1,noise:0,thinkMs:420},
+    master:{name:"Maître",placeDepth:5,moveDepth:8,perfectChance:1,noise:0,thinkMs:520}
+  };
+
+  function initialState(firstPlayer=1){
+    return {
+      board:Array(16).fill(0),
+      turn:firstPlayer,
+      placementsDone:0,
+      ply:0,
+      history:[],
+      lastMove:{1:null,2:null}
+    };
+  }
+  function cloneState(s){
+    return {
+      board:s.board.slice(),turn:s.turn,placementsDone:s.placementsDone,ply:s.ply,
+      history:s.history.slice(),
+      lastMove:{
+        1:s.lastMove?.[1]?{...s.lastMove[1]}:null,
+        2:s.lastMove?.[2]?{...s.lastMove[2]}:null
+      }
+    };
+  }
+  function other(p){return p===1?2:1}
+  function hasLine(board,p){return WIN_LINES.some(line=>line.every(i=>board[i]===p))}
+  function winningLine(board,p){return WIN_LINES.find(line=>line.every(i=>board[i]===p))||null}
+
+  function legalMoves(s){
+    if(s.placementsDone<8){
+      const out=[];
+      for(let i=0;i<16;i++)if(s.board[i]===0)out.push({src:null,dst:i});
+      return out;
+    }
+    const out=[], lm=s.lastMove?.[s.turn]||null;
+    for(let i=0;i<16;i++){
+      if(s.board[i]!==s.turn)continue;
+      for(const j of ADJ[i]){
+        if(s.board[j]!==0)continue;
+        // Anti-retour V2: only the shell moved last turn by this player
+        // cannot immediately return to its previous square.
+        if(lm && i===lm.dst && j===lm.src)continue;
+        out.push({src:i,dst:j});
+      }
+    }
+    return out;
+  }
+
+  function applyMove(s,mv){
+    const ns=cloneState(s), mover=s.turn;
+    if(s.placementsDone<8){
+      if(mv.src!==null || ns.board[mv.dst]!==0)throw new Error("Illegal placement");
+      ns.board[mv.dst]=mover;
+      ns.placementsDone++;
+    }else{
+      if(mv.src===null || ns.board[mv.src]!==mover || ns.board[mv.dst]!==0 || !ADJ[mv.src].includes(mv.dst))
+        throw new Error("Illegal movement");
+      const lm=ns.lastMove[mover];
+      if(lm && mv.src===lm.dst && mv.dst===lm.src)throw new Error("Illegal immediate return");
+      ns.board[mv.src]=0;
+      ns.board[mv.dst]=mover;
+      ns.lastMove[mover]={src:mv.src,dst:mv.dst};
+    }
+    ns.turn=other(mover);
+    ns.ply++;
+    ns.history.push({mover,src:mv.src,dst:mv.dst});
+    return ns;
+  }
+
+  function terminalAfterMove(prev,next,mover,opts={}){
+    const blockedLoses=opts.blockedPlayerLoses??true;
+    const doubleRule=opts.doubleLineRule??"mover_wins";
+    if(next.placementsDone<8)return null;
+    const a=hasLine(next.board,1),b=hasLine(next.board,2);
+    if(a&&b){
+      if(doubleRule==="draw")return {winner:0,reason:"double_line",line:null};
+      return {winner:mover,reason:"double_line_mover",line:winningLine(next.board,mover)};
+    }
+    if(a)return {winner:1,reason:"line",line:winningLine(next.board,1)};
+    if(b)return {winner:2,reason:"line",line:winningLine(next.board,2)};
+    if(legalMoves(next).length===0)
+      return {winner:blockedLoses?other(next.turn):0,reason:blockedLoses?"blocked":"blocked_draw",line:null};
+    return null;
+  }
+
+  function linePotential(board,p){
+    const o=other(p),w=[0,.8,4.2,28,10000]; let score=0;
+    for(const line of WIN_LINES){
+      let m=0,t=0;
+      for(const i of line){if(board[i]===p)m++;else if(board[i]===o)t++}
+      if(t===0)score+=w[m];
+      if(m===0)score-=1.12*w[t];
+    }
+    return score;
+  }
+  function mobilityState(s,p){
+    const old=s.turn;s.turn=p;
+    const n=legalMoves(s).length;
+    s.turn=old;return n;
+  }
+  function evaluate(s,p){
+    let score=linePotential(s.board,p);
+    for(const i of CENTER){
+      if(s.board[i]===p)score+=.55;
+      else if(s.board[i]===other(p))score-=.46;
+    }
+    for(const i of CORNERS)if(s.board[i]===p)score+=.14;
+    if(s.placementsDone>=8){
+      const cp=cloneState(s),co=cloneState(s);
+      score+=.22*mobilityState(cp,p)-.15*mobilityState(co,other(p));
+    }
+    return score;
+  }
+  function key(s){
+    const a=s.lastMove?.[1],b=s.lastMove?.[2];
+    return `${s.board.join("")}|${s.turn}|${s.placementsDone}|${a?a.src+"-"+a.dst:"-"}|${b?b.src+"-"+b.dst:"-"}`;
+  }
+
+  const TT=new Map();
+  let SEARCH_NODES=0,SEARCH_NODE_LIMIT=90000;
+  function minimax(s,root,depth,alpha,beta,seen,opts){
+    SEARCH_NODES++;
+    if(SEARCH_NODES>SEARCH_NODE_LIMIT)return evaluate(s,root);
+    const k=key(s);
+    if(seen.has(k))return 0;
+    const tk=k+"|"+root+"|"+depth;
+    if(TT.has(tk))return TT.get(tk);
+    if(depth<=0)return evaluate(s,root);
+    const moves=legalMoves(s);
+    if(!moves.length)return s.turn===root?-100000:100000;
+    const nextSeen=new Set(seen);nextSeen.add(k);
+    const maxing=s.turn===root;
+    let best=maxing?-Infinity:Infinity;
+    for(const mv of moves){
+      const mover=s.turn,ns=applyMove(s,mv),t=terminalAfterMove(s,ns,mover,opts);
+      const val=t?(t.winner===0?0:(t.winner===root?100000+depth:-100000-depth))
+        :minimax(ns,root,depth-1,alpha,beta,nextSeen,opts);
+      if(maxing){best=Math.max(best,val);alpha=Math.max(alpha,best)}
+      else{best=Math.min(best,val);beta=Math.min(beta,best)}
+      if(beta<=alpha)break;
+    }
+    if(TT.size>120000)TT.clear();
+    TT.set(tk,best);
+    return best;
+  }
+
+  function chooseAiMove(s,level="clever",opts={}){
+    const cfg=AI_PROFILES[level]||AI_PROFILES.clever,root=s.turn,moves=legalMoves(s);
+    const searchDepth=s.placementsDone<8?cfg.placeDepth:cfg.moveDepth;
+    if(!moves.length)return null;
+    TT.clear();SEARCH_NODES=0;
+    SEARCH_NODE_LIMIT=level==="master"?150000:level==="expert"?100000:45000;
+
+    for(const mv of moves){
+      const ns=applyMove(s,mv),t=terminalAfterMove(s,ns,root,opts);
+      if(t&&t.winner===root)return mv;
+    }
+
+    let candidates=moves;
+    if(level==="expert"||level==="master"){
+      const safe=moves.filter(mv=>{
+        const ns=applyMove(s,mv);
+        for(const reply of legalMoves(ns)){
+          const mover=ns.turn,after=applyMove(ns,reply),t=terminalAfterMove(ns,after,mover,opts);
+          if(t&&t.winner===mover)return false;
+        }
+        return true;
+      });
+      if(safe.length)candidates=safe;
+    }
+
+    const scored=candidates.map(mv=>{
+      const ns=applyMove(s,mv),t=terminalAfterMove(s,ns,root,opts);
+      const score=t?(t.winner===0?0:(t.winner===root?100000:-100000))
+        :minimax(ns,root,searchDepth-1,-Infinity,Infinity,new Set(),opts);
+      return {mv,score};
+    }).sort((a,b)=>b.score-a.score);
+
+    const best=scored[0].score,bests=scored.filter(x=>Math.abs(x.score-best)<1e-9);
+    if(cfg.noise===0||Math.random()<cfg.perfectChance)return bests[Math.floor(Math.random()*bests.length)].mv;
+    const weights=scored.map(x=>Math.exp(-(best-x.score)/Math.max(.1,cfg.noise)));
+    let pick=Math.random()*weights.reduce((a,b)=>a+b,0);
+    for(let i=0;i<scored.length;i++){pick-=weights[i];if(pick<=0)return scored[i].mv}
+    return scored[0].mv;
+  }
+
+  function moveNotation(mv){
+    const name=i=>String.fromCharCode(65+(i%4))+(Math.floor(i/4)+1);
+    return mv.src===null?`+${name(mv.dst)}`:`${name(mv.src)}>${name(mv.dst)}`;
+  }
+
+  return {N,CELLS,WIN_LINES,ADJ,AI_PROFILES,initialState,cloneState,other,hasLine,winningLine,legalMoves,applyMove,terminalAfterMove,evaluate,chooseAiMove,moveNotation};
+})();;
+
+
+
+const $=id=>document.getElementById(id);
+function haptic(ms=12){try{navigator.vibrate?.(ms)}catch(e){}}
+const screens=["home","game","stats","rules","online"];
+function show(id){screens.forEach(x=>$(x).classList.toggle("active",x===id));}
+
+const STATS_KEY="tide_stats_v20";
+const MATCHES_KEY="tide_matches_v20";
+const TIMER_PRESETS={
+  "3+0":{base:180,inc:0,label:"3 min"},
+  "5+0":{base:300,inc:0,label:"5 min"},
+  "off":{base:null,inc:0,label:"Sans chrono"}
+};
+
+let mode="solo",state=TIDE.initialState(1),selected=null,ended=false,winningLine=null,firstPlayer=1;
+let clocks={1:null,2:null},timerId=null,turnStartedAt=performance.now(),gameStartedAt=null,currentMatch=null;
+
+const stats=JSON.parse(localStorage.getItem(STATS_KEY)||'{"wins":0,"losses":0,"draws":0,"played":0,"streak":0}');
+const matches=JSON.parse(localStorage.getItem(MATCHES_KEY)||"[]");
+
+function saveStats(){localStorage.setItem(STATS_KEY,JSON.stringify(stats));renderStats()}
+function saveMatches(){
+  while(matches.length>500)matches.shift();
+  localStorage.setItem(MATCHES_KEY,JSON.stringify(matches));
+  renderStats();
+}
+function renderStats(){
+  $("wins").textContent=stats.wins;$("losses").textContent=stats.losses;$("draws").textContent=stats.draws;
+  $("played").textContent=stats.played;$("streak").textContent=stats.streak;
+  $("storedGames").textContent=matches.length;
+}
+renderStats();
+
+function timerPreset(){return TIMER_PRESETS[$("timerSelect").value]||TIMER_PRESETS["5+0"]}
+function formatTime(sec){
+  if(sec==null)return "∞";
+  sec=Math.max(0,sec);
+  const m=Math.floor(sec/60),s=Math.floor(sec%60);
+  return `${m}:${String(s).padStart(2,"0")}`;
+}
+function stopClock(){if(timerId){clearInterval(timerId);timerId=null}}
+function beginTurnClock(){
+  turnStartedAt=performance.now();
+  stopClock();
+  if(ended||timerPreset().base==null)return;
+  timerId=setInterval(tickClock,100);
+}
+function tickClock(){
+  if(ended||timerPreset().base==null)return;
+  const p=state.turn,elapsed=(performance.now()-turnStartedAt)/1000;
+  const remaining=clocks[p]-elapsed;
+  $("time"+p).textContent=formatTime(remaining);
+  $("clock"+p).classList.toggle("danger",remaining<=10);
+  if(remaining<=0){
+    clocks[p]=0;stopClock();
+    finish({winner:TIDE.other(p),reason:"timeout",line:null},true);
+  }
+}
+function commitTurnTime(player){
+  if(timerPreset().base==null)return 0;
+  const used=Math.max(0,(performance.now()-turnStartedAt)/1000);
+  clocks[player]=Math.max(0,clocks[player]-used);
+  return used;
+}
+function resetClocks(){
+  const cfg=timerPreset();
+  clocks={1:cfg.base,2:cfg.base};
+  $("time1").textContent=formatTime(clocks[1]);$("time2").textContent=formatTime(clocks[2]);
+  $("clock1").classList.remove("danger");$("clock2").classList.remove("danger");
+}
+function updateClockUI(){
+  $("clock1").classList.toggle("active",!ended&&state.turn===1);
+  $("clock2").classList.toggle("active",!ended&&state.turn===2);
+  if(timerPreset().base==null){$("time1").textContent="∞";$("time2").textContent="∞";return}
+  const p=state.turn,elapsed=(performance.now()-turnStartedAt)/1000;
+  $("time1").textContent=formatTime(p===1&&!ended?clocks[1]-elapsed:clocks[1]);
+  $("time2").textContent=formatTime(p===2&&!ended?clocks[2]-elapsed:clocks[2]);
+}
+
+function newMatchRecord(){
+  return {
+    id:`tide-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+    version:"2.0-beta",
+    startedAt:new Date().toISOString(),
+    mode,
+    aiLevel:mode==="solo"?$("levelSelect").value:null,
+    timer:$("timerSelect").value,
+    firstPlayer,
+    moves:[],
+    result:null
+  };
+}
+
+const REP=new Map();
+function posKey(s){const a=s.lastMove?.[1],b=s.lastMove?.[2];
+  return s.board.join("")+"|"+s.turn+"|"+(a?a.src+"-"+a.dst:"-")+"|"+(b?b.src+"-"+b.dst:"-");}
+/* ======================= duel en ligne (Supabase) ======================= */
+const SB_URL="https://yrxrsiekwsefrjadbmgv.supabase.co";
+const SB_CLE="sb_publishable_vSiC-ArpP3hyjmX5xQVyLw_SZa_hVqH";
+let sb=null,net={actif:false,id:null,code:null,moi:0,canal:null,distant:false};
+
+async function sbCharger(){
+  if(window.supabase&&window.supabase.createClient)return true;
+  return new Promise(res=>{
+    const s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js";
+    s.onload=()=>res(!!(window.supabase&&window.supabase.createClient));
+    s.onerror=()=>res(false);
+    document.head.appendChild(s);
+  });
+}
+async function sbInit(){
+  if(sb)return sb;
+  if(!await sbCharger())return null;
+  sb=window.supabase.createClient(SB_URL,SB_CLE,{auth:{persistSession:true,autoRefreshToken:true}});
+  const {data}=await sb.auth.getSession();
+  if(!data.session){
+    const r=await sb.auth.signInAnonymously();
+    if(r.error){sb=null;return null}
+  }
+  return sb;
+}
+function netInfo(t){$("netInfo").innerHTML=t}
+function abonner(){
+  if(net.canal){try{sb.removeChannel(net.canal)}catch(e){}net.canal=null}
+  net.canal=sb.channel("partie:"+net.id);
+  net.canal.on("postgres_changes",
+    {event:"UPDATE",schema:"public",table:"partie",filter:"id=eq."+net.id},
+    p=>appliquerDistant(p.new));
+  net.canal.subscribe();
+}
+function appliquerDistant(r){
+  if(!r)return;
+  if(r.statut==="en_cours"&&net.moi===1&&!net.lance){
+    net.lance=true;netInfo("Adversaire connecté.");setMode("online");return;
+  }
+  if(r.ply<=state.ply)return;
+  if(r.resultat&&r.resultat.reason==="abandon"){
+    finish({winner:r.resultat.winner,reason:"abandon",line:null});return;
+  }
+  if(!r.coup)return;
+  const mv=TIDE.legalMoves(state).find(m=>m.src===(r.coup.src??null)&&m.dst===r.coup.dst);
+  if(!mv){$("substatus").textContent="Désynchronisation — relancez la partie.";return}
+  net.distant=true;play(mv);net.distant=false;
+}
+async function envoyerCoup(mv,resultat){
+  try{
+    const {error}=await sb.rpc("jouer_coup",{
+      p_id:net.id,p_ply:state.ply,p_coup:{src:mv.src,dst:mv.dst},
+      p_plateau:state.board.join(""),p_trait:state.turn,
+      p_resultat:resultat?{winner:resultat.winner,reason:resultat.reason}:null});
+    if(error)$("substatus").textContent="Envoi refusé : "+error.message;
+  }catch(e){$("substatus").textContent="Réseau indisponible."}
+}
+async function netCreer(){
+  netInfo("Connexion…");
+  if(!await sbInit())return netInfo("Service injoignable.");
+  const {data,error}=await sb.rpc("creer_partie",{p_jeu:"classic"});
+  if(error)return netInfo("Échec : "+error.message);
+  const l=Array.isArray(data)?data[0]:data;
+  net={actif:true,id:l.partie_id,code:l.code,moi:1,canal:null,distant:false,lance:false};
+  abonner();
+  netInfo("Code de la partie<br><span style=\'font-size:34px;letter-spacing:.25em\'>"+l.code+"</span><br>En attente de l’adversaire…");
+}
+async function netRejoindre(){
+  const code=($("netCode").value||"").trim().toUpperCase();
+  if(code.length<4)return netInfo("Code incomplet.");
+  netInfo("Connexion…");
+  if(!await sbInit())return netInfo("Service injoignable.");
+  const {data,error}=await sb.rpc("rejoindre_partie",{p_code:code});
+  if(error)return netInfo("Échec : "+error.message);
+  const l=Array.isArray(data)?data[0]:data;
+  net={actif:true,id:l.partie_id,code,moi:2,canal:null,distant:false,lance:true};
+  abonner();netInfo("Connecté.");setMode("online");
+}
+/* ====================================================================== */
+
+function resetGame(){
+  stopClock();REP.clear();
+  state=TIDE.initialState(firstPlayer);selected=null;ended=false;winningLine=null;
+  resetClocks();gameStartedAt=performance.now();currentMatch=newMatchRecord();
+  render();beginTurnClock();
+  if(mode==="solo"&&state.turn===2)setTimeout(aiTurn,350);
+}
+function setMode(m){$("game").classList.add("started");
+  mode=m;
+  $("levelSelect").style.display=m==="solo"?"":"none";
+  $("timerSelect").style.display=m==="online"?"none":"";
+  $("firstPlayerBtn").style.display=m==="solo"?"":"none";
+  resetGame();show("game");
+}
+function legalDests(){
+  const moves=TIDE.legalMoves(state);
+  if(state.placementsDone<8&&humanTurn())return new Set(moves.map(m=>m.dst));
+  if(selected!==null)return new Set(moves.filter(m=>m.src===selected).map(m=>m.dst));
+  return new Set();
+}
+function humanTurn(){return mode==="online"?state.turn===net.moi:(mode==="duel"||state.turn===1)}
+function pressureCells(p){
+  const out=new Set();
+  for(const line of TIDE.WIN_LINES){
+    let mine=0,empty=0;
+    for(const i of line){if(state.board[i]===p)mine++;else if(state.board[i]===0)empty++}
+    if(mine===3&&empty===1)for(const i of line)if(state.board[i]===p)out.add(i);
+  }
+  return out;
+}
+function render(){
+  $("board").innerHTML="";
+  const dests=legalDests(),p1Pressure=pressureCells(1),p2Pressure=pressureCells(2);
+  const lm=state.lastMove?.[state.turn]||null;
+  state.board.forEach((v,i)=>{
+    const b=document.createElement("button");b.className="cell";
+    if(dests.has(i))b.classList.add("legal");
+    if(selected===i)b.classList.add("selected");
+    if(state.placementsDone>=8&&lm&&i===lm.src)b.classList.add("wake");
+    if(selected!==null&&lm&&selected===lm.dst&&i===lm.src)b.classList.add("no-return");
+    if((p1Pressure.has(i)||p2Pressure.has(i))&&v)b.classList.add("pressure");
+    if(v){
+      const sh=document.createElement("div");
+      sh.className="shell "+(v===1?"p1":"p2")+(winningLine?.includes(i)?" win":"");
+      b.appendChild(sh);
+    }
+    b.addEventListener("click",()=>tap(i));
+    $("board").appendChild(b);
+  });
+  const phase=state.placementsDone<8?"Pose":"Déplacement";
+  $("substatus").textContent=ended?"":phase+" · "+state.placementsDone+"/8 posés · "+timerPreset().label;
+  $("modeLabel").textContent=mode==="solo"?"IA · "+TIDE.AI_PROFILES[$("levelSelect").value].name:"Duel local";
+  if(!ended){
+    if(mode==="solo"){
+      $("turnLabel").textContent=state.turn===1?"À vous":"À l’IA";
+      $("status").textContent=state.turn===1
+        ?(state.placementsDone<8?"Posez un coquillage.":"Choisissez un coquillage · pas de retour immédiat.")
+        :"L’IA réfléchit…";
+    }else{
+      $("turnLabel").textContent=state.turn===1?"Coquilles bleues":"Coquilles rouges";
+      $("status").textContent=state.placementsDone<8?"Posez un coquillage.":"Choisissez un coquillage · pas de retour immédiat.";
+    }
+  }
+  updateClockUI();
+}
+
+function finish(t,fromTimer=false){
+  if(ended)return;
+  ended=true;winningLine=t.line;stopClock();
+  if(t.winner)haptic([18,35,30]);
+  if(mode==="solo"){
+    stats.played++;
+    if(t.winner===1){stats.wins++;stats.streak++}
+    else if(t.winner===2){stats.losses++;stats.streak=0}
+    else stats.draws++;
+    saveStats();
+  }
+  if(currentMatch){
+    currentMatch.endedAt=new Date().toISOString();
+    currentMatch.durationMs=Math.round(performance.now()-gameStartedAt);
+    currentMatch.result={winner:t.winner,reason:t.reason};
+    currentMatch.finalClock={1:clocks[1],2:clocks[2]};
+    matches.push(currentMatch);saveMatches();
+  }
+  $("status").textContent=t.reason==="timeout"
+    ?(mode==="solo"?(t.winner===1?"Temps écoulé — vous gagnez.":"Temps écoulé — l’IA gagne.")
+      :(t.winner===1?"Temps écoulé — les bleus gagnent.":"Temps écoulé — les rouges gagnent."))
+    :t.winner===0?"Belle partie — match nul."
+    :mode==="solo"?(t.winner===1?"Belle partie — vous gagnez.":"Belle partie — l’IA gagne.")
+    :(t.winner===1?"Belle partie — les bleus gagnent.":"Belle partie — les rouges gagnent.");
+  $("substatus").textContent="Touchez Rejouer pour une nouvelle partie.";
+  render();
+}
+function play(mv){
+  if(ended)return false;
+  const mover=state.turn,prev=state;
+  const thinkSeconds=commitTurnTime(mover);
+  if(timerPreset().base!=null&&clocks[mover]<=0){
+    finish({winner:TIDE.other(mover),reason:"timeout",line:null},true);return false;
+  }
+  const before=prev.board.join("");
+  state=TIDE.applyMove(state,mv);selected=null;haptic(10);
+  const after=state.board.join("");
+  if(currentMatch)currentMatch.moves.push({
+    ply:state.ply,player:mover,phase:prev.placementsDone<8?"placement":"movement",
+    src:mv.src,dst:mv.dst,notation:TIDE.moveNotation(mv),
+    thinkMs:Math.round(thinkSeconds*1000),
+    clockAfter:clocks[mover],
+    boardBefore:before,boardAfter:after
+  });
+  const t=TIDE.terminalAfterMove(prev,state,mover);
+  if(mode==="online"&&!net.distant&&mover===net.moi)envoyerCoup(mv,t);
+  if(t){finish(t);return false}
+  if(state.placementsDone>=8){
+    const pk=posKey(state),c=(REP.get(pk)||0)+1;REP.set(pk,c);
+    if(c>=3){finish({winner:0,reason:"repetition",line:null});return false}
+  }
+  render();beginTurnClock();return true;
+}
+function tap(i){
+  if(ended||!humanTurn())return;
+  const moves=TIDE.legalMoves(state);
+  if(state.placementsDone<8){
+    const mv=moves.find(m=>m.dst===i);
+    if(mv&&play(mv)&&mode==="solo")setTimeout(aiTurn,TIDE.AI_PROFILES[$("levelSelect").value].thinkMs);
+    return;
+  }
+  if(state.board[i]===state.turn){selected=i;render();return}
+  if(selected!==null){
+    const mv=moves.find(m=>m.src===selected&&m.dst===i);
+    if(mv&&play(mv)&&mode==="solo")setTimeout(aiTurn,TIDE.AI_PROFILES[$("levelSelect").value].thinkMs);
+  }
+}
+function aiTurn(){
+  if(ended||mode!=="solo"||state.turn!==2)return;
+  const mv=TIDE.chooseAiMove(state,$("levelSelect").value);
+  if(mv)play(mv);
+}
+
+function download(name,text,type){
+  const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function csvEscape(v){
+  const s=String(v??"");return /[",\n]/.test(s)?'"'+s.replaceAll('"','""')+'"':s;
+}
+function exportJSON(){
+  download(`tide-lab-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({version:"2.0-beta",exportedAt:new Date().toISOString(),matches},null,2),"application/json");
+}
+function exportCSV(){
+  const cols=["matchId","startedAt","mode","aiLevel","timer","winner","reason","ply","player","phase","notation","thinkMs","clockAfter","boardBefore","boardAfter"];
+  const rows=[cols.join(",")];
+  for(const g of matches){
+    for(const m of g.moves)rows.push(cols.map(k=>csvEscape({
+      matchId:g.id,startedAt:g.startedAt,mode:g.mode,aiLevel:g.aiLevel,timer:g.timer,
+      winner:g.result?.winner,reason:g.result?.reason,...m
+    }[k])).join(","));
+  }
+  download(`tide-lab-${new Date().toISOString().slice(0,10)}.csv`,rows.join("\n"),"text/csv;charset=utf-8");
+}
+
+$("playSolo").addEventListener("click",()=>setMode("solo"));
+$("playDuel").addEventListener("click",()=>setMode("duel"));
+$("playOnline").addEventListener("click",()=>{netInfo("&nbsp;");show("online")});
+$("onlineBack").addEventListener("click",()=>show("home"));
+$("netCreate").addEventListener("click",netCreer);
+$("netJoin").addEventListener("click",netRejoindre);
+$("game").classList.remove("started");$("backHome").addEventListener("click",()=>{stopClock();show("home")});
+$("openStats").addEventListener("click",()=>show("rules"));
+$("statsBack").addEventListener("click",()=>show("home"));
+$("rulesBtn").addEventListener("click",()=>{stopClock();show("rules")});
+$("rulesBack").addEventListener("click",()=>{const g=$("game").classList.contains("started");show(g?"game":"home");if(g&&!ended)beginTurnClock()});
+$("newGameBtn").addEventListener("click",resetGame);
+$("levelSelect").addEventListener("change",render);
+$("timerSelect").addEventListener("change",resetGame);
+$("firstPlayerBtn").addEventListener("click",()=>{
+  firstPlayer=firstPlayer===1?2:1;
+  $("firstPlayerBtn").textContent=firstPlayer===1?"Je commence":"L’IA commence";
+  resetGame();
+});
+$("exportJson").addEventListener("click",exportJSON);
+$("exportCsv").addEventListener("click",exportCSV);
+$("resetStats").addEventListener("click",()=>{
+  Object.assign(stats,{wins:0,losses:0,draws:0,played:0,streak:0});saveStats();
+});
+render();
+</script>
+</body>
+</html>
