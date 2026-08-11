@@ -7,20 +7,21 @@ body{margin:0;min-height:100svh;color:var(--ink);
  font-family:"Nunito",ui-rounded,-apple-system-rounded,"SF Pro Rounded",
    -apple-system,BlinkMacSystemFont,sans-serif;
  background:#F8D8AB;
- padding:calc(env(safe-area-inset-top) + 14px) 0 calc(env(safe-area-inset-bottom) + 26px)}
-#mer{position:absolute;left:0;right:0;top:0;height:210px;z-index:0;pointer-events:none;
+ padding:0}
+#mer{position:absolute;left:0;right:0;top:0;height:214px;z-index:-1;pointer-events:none;
  background:linear-gradient(180deg,#1598ba 0,#43bcd0 44%,#a8dcd2 72%,#e8dcbb 90%,#F8D8AB 100%)}
 #mer:after{content:"";position:absolute;inset:0;
  background:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,.14) 46%,
   rgba(255,255,255,.52) 78%,rgba(255,255,255,.80) 94%,rgba(255,255,255,0) 100%)}
-.page{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 18px}
+.page{position:relative;z-index:1;max-width:480px;margin:0 auto;
+ padding:calc(env(safe-area-inset-top) + 10px) 18px calc(env(safe-area-inset-bottom) + 26px)}
 
-.brand{text-align:center;padding-top:2vh}
-.brand b{display:inline-block;font-size:clamp(58px,15vw,104px);font-weight:900;
+.brand{text-align:center;padding-top:2px}
+.brand b{display:inline-block;font-size:clamp(52px,13.5vw,92px);font-weight:900;
  letter-spacing:.085em;line-height:.9;color:var(--ink2);
  animation:flotte 5.5s ease-in-out infinite}
 @keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.punch{margin-top:14px;font-size:clamp(19px,5.4vw,24px);font-weight:900;letter-spacing:.005em;text-align:center;color:var(--ink2)}
+.punch{margin-top:6px;font-size:clamp(19px,5.4vw,24px);font-weight:900;letter-spacing:.005em;text-align:center;color:var(--ink2)}
 .punch em{display:block;font-style:normal;margin-top:5px;font-size:.60em;font-weight:800;color:var(--corail)}
 
 .duo{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -37,16 +38,13 @@ body{margin:0;min-height:100svh;color:var(--ink);
 .plateau .halo{position:absolute;transform:translate(-50%,-50%);width:var(--d);height:var(--d);
  border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.92);opacity:0;transition:opacity .3s}
 .plateau.gagne .halo{opacity:1}
-.etiq{background:rgba(255,255,255,.90);border-radius:16px;padding:9px 14px 10px;
- display:grid;justify-items:center;gap:2px;box-shadow:0 4px 14px rgba(150,110,60,.13);
- transition:box-shadow .25s}
-.carte[aria-pressed="true"] .etiq{box-shadow:0 7px 20px rgba(150,110,60,.20)}
+.etiq{display:grid;justify-items:center;gap:1px;padding:2px 4px 0}
 .nom{font-size:clamp(14px,4.2vw,17px);font-weight:900;letter-spacing:.03em;line-height:1}
-.meta{font-size:10px;font-weight:800;letter-spacing:.10em;text-transform:uppercase;color:var(--ink2);opacity:.62}
+.meta{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink2);opacity:.55}
 
 .modes{margin-top:20px;display:grid;gap:9px}
 .mode{width:100%;border:0;border-radius:18px;padding:15px 18px;text-align:left;
- background:var(--glass);border:1px solid var(--glass-b);backdrop-filter:blur(12px);color:var(--ink);
+ background:rgba(243,212,164,.80);border:1px solid rgba(198,154,98,.42);color:var(--ink);
  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
  font-weight:800;font-size:16px;transition:transform .18s}
 .mode small{font-size:11px;font-weight:750;opacity:.58}
@@ -59,8 +57,7 @@ body{margin:0;min-height:100svh;color:var(--ink);
  text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px;font-family:inherit}
 .pied p{margin:12px 0 0;font-size:9.5px;font-weight:900;letter-spacing:.19em;opacity:.42}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style></head><body><div class="page">
-  <div id="mer"></div>
+</style></head><body><div id="mer"></div><div class="page">
   <div class="brand"><b>TIDE</b></div>
   <div class="punch">Alignez 4 coquillages<em>sans jamais revenir en arrière</em></div>
 
