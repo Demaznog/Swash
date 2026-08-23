@@ -1,13 +1,28 @@
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: '0 6 * * 1,4'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping Supabase REST API
+        env:
+          SUPABASE_URL: https://yrxrsiekwsefrjadbmgv.supabase.co
+          ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           set -euo pipefail
           if [ -z "${ANON_KEY}" ]; then
             echo "::error::Secret SUPABASE_ANON_KEY absent."
             exit 1
           fi
-          echo "Longueur de la clé : ${#ANON_KEY}"
-          echo "Préfixe : ${ANON_KEY:0:6}"
+          echo "Longueur de la cle : ${#ANON_KEY}"
+          echo "Prefixe : ${ANON_KEY:0:6}"
 
-          # Les clés sb_publishable_ ne doivent PAS partir en Authorization: Bearer
           if [ "${ANON_KEY:0:3}" = "eyJ" ]; then
             AUTH_ARGS=(-H "Authorization: Bearer ${ANON_KEY}")
           else
@@ -22,12 +37,12 @@
               -H "apikey: ${ANON_KEY}" \
               "${AUTH_ARGS[@]}" \
               -H "Accept: application/json" || echo "000")
-            echo "Code HTTP : ${HTTP_CODE} — $(cat response.txt)"
+            echo "Code HTTP : ${HTTP_CODE} - $(cat response.txt)"
             if [ "${HTTP_CODE}" = "200" ]; then
-              echo "✅ Ping réussi."
+              echo "Ping reussi."
               exit 0
             fi
             [ "${attempt}" -lt 3 ] && sleep 30
           done
-          echo "::error::Ping échoué (code ${HTTP_CODE})."
+          echo "::error::Ping echoue (code ${HTTP_CODE})."
           exit 1
