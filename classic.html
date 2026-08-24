@@ -172,41 +172,21 @@ body:before,body:after{content:none;display:none}
 .stat span{font-size:11px;font-weight:800;opacity:.6}
 
 /* ==================== ecran de victoire ==================== */
-#victoire{position:fixed;inset:0;max-width:none;margin:0;padding:0;z-index:60;
- background:var(--sable);overflow:auto}
-#victoire:not(.active){display:none}
-.vic-mer{position:absolute;left:0;right:0;top:0;height:clamp(96px,13svh,140px);pointer-events:none;
- background:linear-gradient(180deg,#0d6f95 0,#1598ba 26%,#4cc2d2 55%,#b6ddcd 78%,#eddcbe 92%,var(--sable) 100%)}
-.vic-mer:after{content:"";position:absolute;left:0;right:0;bottom:0;height:48%;
- background:radial-gradient(130% 100% at 50% 100%,rgba(255,255,255,.94) 0 40%,
- rgba(255,255,255,.34) 62%,transparent 80%)}
-.vic-in{position:relative;max-width:470px;margin:0 auto;min-height:100svh;display:flex;flex-direction:column;
- padding:calc(env(safe-area-inset-top) + clamp(104px,14svh,150px)) 20px calc(env(safe-area-inset-bottom) + 20px)}
-.vic-t{display:flex;align-items:center;justify-content:center;gap:16px}
-.vic-t h2{margin:0;font-family:"Nunito",sans-serif;font-weight:900;font-synthesis-weight:none;
- letter-spacing:.045em;font-size:clamp(25px,7.2vw,36px);color:var(--ink2);line-height:1;
- animation:vicIn .6s cubic-bezier(.2,1.4,.4,1) both}
-.ray{font-size:clamp(19px,5.2vw,25px);color:var(--ink2);opacity:.55;font-weight:900;letter-spacing:-.2em}
-.ray.g{transform:scaleX(-1)}
-@keyframes vicIn{from{opacity:0;transform:scale(.86) translateY(10px)}to{opacity:1;transform:none}}
-.vic-camp{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px}
+#victoire .vic-bandeau{grid-template-columns:auto 1fr;gap:14px;padding:14px 18px}
+.vic-camp{display:flex;align-items:center;gap:9px}
 .vic-camp i{width:15px;height:15px;border-radius:50%;box-shadow:0 1px 3px rgba(120,80,40,.35)}
 .vic-camp i.b{background:#1C8EDD}
 .vic-camp i.r{background:#E05638}
-.vic-camp b{font-size:clamp(15px,4.2vw,18px);font-weight:900;letter-spacing:.1em;color:var(--ink2)}
-.vic-board{width:min(80vw,52svh,380px);margin:clamp(14px,3svh,26px) auto 0}
-.ecume{position:absolute;pointer-events:none;z-index:2;transform-origin:50% 50%;border-radius:50%;
- background:radial-gradient(50% 60% at 50% 50%,rgba(255,255,255,.95) 0 46%,
- rgba(255,255,255,.55) 68%,rgba(255,255,255,0) 88%);
- opacity:0;transition:opacity .5s ease .25s;filter:blur(.5px)}
-.ecume.on{opacity:1}
-.vic-btns{margin-top:auto;padding-top:clamp(14px,3svh,26px);display:grid;gap:9px}
-.vic-primaire,.vic-second{border:0;border-radius:999px;padding:15px;font-family:inherit;
- font-weight:900;font-size:15px;letter-spacing:.06em}
-.vic-primaire{background:linear-gradient(180deg,#184a55,#113741);color:#fff;
- box-shadow:0 10px 24px rgba(20,58,63,.26)}
-.vic-second{background:rgba(255,255,255,.5);color:var(--ink2);
- box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+.vic-camp b{font-size:13px;font-weight:900;letter-spacing:.11em;color:var(--ink2)}
+.vic-issue{justify-self:end;text-align:right}
+.vic-issue b{display:block;font-family:"Nunito",sans-serif;font-weight:900;font-synthesis-weight:none;
+ letter-spacing:.05em;font-size:clamp(19px,5.2vw,23px);color:var(--ink2);line-height:1;
+ animation:vicIn .5s cubic-bezier(.2,1.4,.4,1) both}
+.vic-issue span{display:block;margin-top:3px;font-size:10.5px;font-weight:700;color:var(--ink2);opacity:.55}
+@keyframes vicIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+.vic-btns{grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.vic-btns button{padding:14px 8px;font-size:13.5px;font-weight:900;letter-spacing:.03em}
+.vic-primaire{background:linear-gradient(180deg,#184a55,#113741);color:#fff;box-shadow:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 
 .jeu-nom .sup{color:var(--corail);font-size:.52em;vertical-align:super;letter-spacing:.06em;margin-left:.12em}
@@ -261,15 +241,22 @@ body:before,body:after{content:none;display:none}
 </section>
 
 <section class="screen" id="victoire">
-  <div class="vic-mer"></div>
-  <div class="vic-in">
-    <div class="vic-t"><span class="ray g">&#8942;</span><h2 id="vicTitre">VICTOIRE !</h2><span class="ray d">&#8942;</span></div>
+  <div class="hdr">
+    <button class="rond" id="vicHome">&lsaquo;</button>
+    <div class="hdr-t"><h1 class="jeu-nom">TIDE<span class="sup">CLASSIC</span></h1><div class="jeu-fmt">4 &times; 4</div></div>
+    <span style="width:44px"></span>
+  </div>
+
+  <div class="bandeau vic-bandeau">
     <div class="vic-camp"><i id="vicPuce" class="b"></i><b id="vicNom">BLEU</b></div>
-    <div class="board vic-board" id="vicBoard"><div class="ecume" id="vicEcume"></div></div>
-    <div class="vic-btns">
-      <button class="vic-primaire" id="vicRejouer">REJOUER</button>
-      <button class="vic-second" id="vicNouvelle">NOUVELLE PARTIE</button>
-    </div>
+    <div class="vic-issue"><b id="vicTitre">GAGNE</b><span id="vicRaison"></span></div>
+  </div>
+
+  <div class="board vic-board" id="vicBoard"></div>
+
+  <div class="reglages vic-btns">
+    <button class="vic-primaire" id="vicRejouer">Rejouer</button>
+    <button id="vicNouvelle">Changer de jeu</button>
   </div>
 </section>
 
@@ -1046,45 +1033,30 @@ function montrerVictoire(t){
     e.board.forEach((v, i) => { if (v) pose(i, v === 1 ? "p1" : "p2"); });
   }
 
-  const ec = document.getElementById("vicEcume");
-  if (ec) {
-    ec.classList.remove("on");
-    if (ligne && ligne.length >= 2) {
-      const P0 = ligne[0], P1 = ligne[ligne.length - 1];
-      const x0 = VG.cols[P0 % VG.n], y0 = VG.rows[Math.floor(P0 / VG.n)];
-      const x1 = VG.cols[P1 % VG.n], y1 = VG.rows[Math.floor(P1 / VG.n)];
-      const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
-      const dx = x1 - x0, dy = y1 - y0;
-      const len = Math.sqrt(dx * dx + dy * dy) + VG.d * 1.25;
-      const ang = Math.atan2(dy, dx) * 180 / Math.PI;
-      const ep  = VG.d * 1.30;
-      ec.style.left = (mx - len / 2) + "%";
-      ec.style.top = (my - ep / 2) + "%";
-      ec.style.width = len + "%";
-      ec.style.height = ep + "%";
-      ec.style.transform = "rotate(" + ang.toFixed(1) + "deg)";
-      setTimeout(() => ec.classList.add("on"), 160);
-    }
-  }
   const gagnant = t.winner === 0 ? null : t.winner;
   const enLigne = (typeof net !== "undefined" && net && net.actif);
+  const solo = (mode === "solo");
   const titre = document.getElementById("vicTitre");
-  if (titre) {
-    titre.textContent = t.winner === 0 ? "MATCH NUL"
-      : (enLigne ? (t.winner === net.moi ? "VICTOIRE !" : "DÉFAITE")
-                 : (mode === "solo" ? (t.winner === 1 ? "VICTOIRE !" : "L’IA GAGNE") : "VICTOIRE !"));
-  }
   const puce = document.getElementById("vicPuce"), nom = document.getElementById("vicNom");
-  if (puce && nom) {
-    if (gagnant) {
-      puce.className = gagnant === 1 ? "b" : "r";
-      puce.style.display = "";
-      nom.textContent = gagnant === 1 ? "BLEU" : "ROUGE";
-    } else {
-      puce.style.display = "none";
-      nom.textContent = "Personne ne l’emporte";
-    }
+  const raison = document.getElementById("vicRaison");
+  if (gagnant) {
+    if (puce) { puce.className = gagnant === 1 ? "b" : "r"; puce.style.display = ""; }
+    if (nom) nom.textContent = solo ? ((typeof firstPlayer === "undefined" || firstPlayer === 1)
+        ? (gagnant === 1 ? "MOI" : "IA") : (gagnant === 1 ? "IA" : "MOI"))
+      : enLigne ? (gagnant === net.moi ? "MOI" : "ADVERSAIRE")
+      : (gagnant === 1 ? "BLEU" : "ROUGE");
+    if (titre) titre.textContent = "GAGNE";
+  } else {
+    if (puce) puce.style.display = "none";
+    if (nom) nom.textContent = "";
+    if (titre) titre.textContent = "MATCH NUL";
   }
+  if (raison) raison.textContent =
+      t.reason === "timeout" ? "Temps écoulé"
+    : t.reason === "blocked" ? "Plus aucun coup possible"
+    : t.reason === "repetition" ? "Position répétée trois fois"
+    : t.reason === "abandon" ? "Partie abandonnée"
+    : gagnant ? "Quatre coquillages alignés" : "";
   show("victoire");
 }
 
@@ -1095,6 +1067,8 @@ function montrerVictoire(t){
     if (typeof resetGame === "function") resetGame(); else if (typeof reset === "function") reset();
   });
   if (n) n.addEventListener("click", () => { location.href = "index.html"; });
+  const hm = document.getElementById("vicHome");
+  if (hm) hm.addEventListener("click", () => { location.href = "index.html"; });
 })();
 
 /* raccourcir les consignes : le plateau doit primer */
