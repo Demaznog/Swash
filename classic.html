@@ -825,11 +825,11 @@ function render(){
   updateClockUI();
 }
 
-function annonce(titre,sous){
+function annonce(titre,sous){if(!$("over"))return;
   $("overT").textContent=titre;$("overS").textContent=sous||"";
   const o=$("over");o.classList.remove("on");void o.offsetWidth;o.classList.add("on");
 }
-function fermerAnnonce(){$("over").classList.remove("on")}
+function fermerAnnonce(){const o=$("over");if(o)o.classList.remove("on")}
 function finish(t,fromTimer=false){
   if(ended)return;
   ended=true;winningLine=t.line;stopClock();
@@ -1102,7 +1102,7 @@ function montrerVictoire(t){
 })();
 
 /* supprime l ancienne carte d annonce */
-(function(){ const o = document.getElementById("over"); if (o) o.remove(); })();
+/* l ancienne carte reste dans le document, masquee par le style */
 
 /* entree directe selon l URL */
 (function(){
