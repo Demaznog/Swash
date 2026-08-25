@@ -137,6 +137,12 @@ body:before,body:after{content:none;display:none}
 .stat span{font-size:11px;font-weight:800;opacity:.6}
 
 /* ==================== ecran de victoire ==================== */
+#victoire{position:fixed;inset:0;z-index:60;overflow-y:auto;overscroll-behavior:contain;
+ background:var(--sable);max-width:none;margin:0;
+ padding:0 16px calc(env(safe-area-inset-bottom) + 22px)}
+#victoire>*{max-width:470px;margin-left:auto;margin-right:auto}
+#victoire.active{animation:vicFond .28s ease both}
+@keyframes vicFond{from{opacity:0}to{opacity:1}}
 #victoire .vic-bandeau{grid-template-columns:auto 1fr;gap:14px;padding:14px 18px}
 .vic-camp{display:flex;align-items:center;gap:9px}
 .vic-camp i{width:15px;height:15px;border-radius:50%;box-shadow:0 1px 3px rgba(120,80,40,.35)}
@@ -542,11 +548,11 @@ function tap(i){
   const ms=TP.legal(S);
   if(TP.placing(S)){
     const m=ms.find(x=>x.dst===i);
-    if(m&&play(m)&&mode==="solo")setTimeout(aiTurn,Math.max(1000,TP.AI[$("level").value].wait));
+    if(m&&play(m)&&mode==="solo")setTimeout(aiTurn,delaiIA());
     return}
   if(S.b[i]?.p===S.turn){sel=i;render();return}
   if(sel!=null){const m=ms.find(x=>x.src===sel&&x.dst===i);
-    if(m&&play(m)&&mode==="solo")setTimeout(aiTurn,Math.max(1000,TP.AI[$("level").value].wait))}}
+    if(m&&play(m)&&mode==="solo")setTimeout(aiTurn,delaiIA())}}
 
 function aiTurn(){if(ended||mode!=="solo"||S.turn!==2)return;
   const m=TP.ai(S,$("level").value);if(m)play(m)}
@@ -628,10 +634,9 @@ function majBandeau(){
 function nomsCamps(){
   const g1=document.querySelector('.camp .camp-nom'), boites=document.querySelectorAll('.camp-nom');
   if(boites.length<2)return;
-  if(mode==="solo"){
-    const moiBleu = (typeof firstPlayer==="undefined") ? true : firstPlayer===1;
-    boites[0].textContent = moiBleu ? "MOI" : "IA";
-    boites[1].textContent = moiBleu ? "IA" : "MOI";
+  if(mode==="solo"){          // l IA tient toujours le camp 2
+    boites[0].textContent = "MOI";
+    boites[1].textContent = "IA";
   } else { boites[0].textContent="BLEU"; boites[1].textContent="ROUGE"; }
 }
 
@@ -667,8 +672,7 @@ function montrerVictoire(t){
   const raison = document.getElementById("vicRaison");
   if (gagnant) {
     if (puce) { puce.className = gagnant === 1 ? "b" : "r"; puce.style.display = ""; }
-    if (nom) nom.textContent = solo ? ((typeof firstPlayer === "undefined" || firstPlayer === 1)
-        ? (gagnant === 1 ? "MOI" : "IA") : (gagnant === 1 ? "IA" : "MOI"))
+    if (nom) nom.textContent = solo ? (gagnant === 1 ? "MOI" : "IA")
       : enLigne ? (gagnant === net.moi ? "MOI" : "ADVERSAIRE")
       : (gagnant === 1 ? "BLEU" : "ROUGE");
     if (titre) titre.textContent = "GAGNE";
@@ -696,6 +700,28 @@ function montrerVictoire(t){
   const hm = document.getElementById("vicHome");
   if (hm) hm.addEventListener("click", () => { location.href = "index.html"; });
 })();
+
+/* ---- temps de reflexion de l IA ----
+   court a la pose, puis s allonge : la position se complique et le temps compte. */
+function delaiIA(){
+  const e = etatPartie();
+  const pose = (VJEU === "plus")
+      ? (e.p1 + e.p2 < 10)
+      : ((typeof state !== "undefined" && (state.placementsDone||0) < 8));
+  const coups = (VJEU === "plus")
+      ? (typeof S !== "undefined" ? (S.ply||0) : 0)
+      : (typeof state !== "undefined" ? (state.ply||0) : 0);
+  const sel = document.getElementById(VJEU === "plus" ? "level" : "levelSelect");
+  const niv = sel ? sel.value : "clever";
+  const coef = {relax:0.68, clever:1, expert:1.18, master:1.38}[niv] || 1;
+  let ms;
+  if (pose) ms = 900 + Math.random() * 700;                 // pose : 0,9 a 1,6 s
+  else {
+    const avance = Math.max(0, coups - (VJEU === "plus" ? 10 : 8));
+    ms = 2100 + Math.min(avance, 26) * 105 + Math.random() * 1300;
+  }
+  return Math.round(Math.min(5600, ms * coef));
+}
 
 /* raccourcir les consignes : le plateau doit primer */
 const COURT=[
@@ -725,7 +751,7 @@ function abrege(){
   render = function(){ orig.apply(this, arguments); try{ majBandeau(); nomsCamps(); abrege(); }catch(e){} };
 })();
 
-/* TIDE+ : choix du premier joueur */
+/* TIDE+ : choix du premier joueur (l IA reste le camp 2) */
 (function(){
   const btn = document.getElementById("firstPlus");
   if (!btn) return;
@@ -734,21 +760,23 @@ function abrege(){
     humainCommence = !humainCommence;
     btn.textContent = humainCommence ? "Je commence" : "L’IA commence";
     if (typeof reset === "function") reset();
-    if (!humainCommence && mode === "solo" && typeof aiTurn === "function") {
-      setTimeout(aiTurn, 1000);
+    if (!humainCommence && mode === "solo") {
+      S.turn = 2;                       // l IA ouvre, avec ses coquillages rouges
+      render();
+      setTimeout(aiTurn, delaiIA());
     }
   });
 })();
 
 /* l ancienne carte reste dans le document, masquee par le style */
 
-/* la fin de partie ouvre l ecran de victoire */
+/* la fin de partie donne le verdict aussitot, par-dessus la page */
 (function(){
   if (typeof finish !== "function") return;
   const orig = finish;
   finish = function(t){
     const r = orig.apply(this, arguments);
-    try{ setTimeout(()=>montrerVictoire(t||{winner:0}), 1900); }catch(e){}
+    try{ montrerVictoire(t || {winner:0}); }catch(e){}
     return r;
   };
 })();
