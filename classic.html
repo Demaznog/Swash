@@ -278,6 +278,36 @@ body:before,body:after{content:none;display:none}
  text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px}
 .rond.ic{padding:0}
 .rond.ic svg{width:23px;height:23px;display:block}
+
+/* ============ ecran en ligne ============ */
+#online .dedans-net{max-width:430px;margin:0 auto;padding-top:6px}
+#online .grp{margin-top:20px}
+#online .aide{margin-top:6px;font-size:11.5px;font-weight:700;color:var(--ink2);opacity:.6;
+ line-height:1.35}
+#online input,#online select{width:100%;margin-top:9px;border:0;border-radius:16px;padding:15px;
+ font-family:inherit;font-weight:800;font-size:16px;text-align:center;color:var(--ink2);
+ background:rgba(255,255,255,.62);box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+#online #netCode{font-size:28px;letter-spacing:.34em;font-weight:900;text-indent:.34em}
+#online select{text-align:center;text-align-last:center}
+.bloc-net{margin-top:16px;padding:18px;border-radius:22px;
+ background:rgba(255,255,255,.34);box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+.bloc-t{font-family:"Nunito",sans-serif;font-weight:900;font-synthesis-weight:none;
+ font-size:17px;letter-spacing:.02em;color:var(--ink2)}
+.net-primaire{width:100%;margin-top:12px;border:0;border-radius:999px;padding:16px;
+ font-family:inherit;font-weight:900;font-size:15.5px;letter-spacing:.05em;color:#fff;
+ background:linear-gradient(180deg,#184a55,#113741);box-shadow:0 8px 20px rgba(20,58,63,.22)}
+.net-primaire.clair{color:var(--ink2);background:rgba(255,255,255,.62);
+ box-shadow:inset 0 0 0 1.5px rgba(24,74,85,.35)}
+.net-primaire:active{transform:scale(.985)}
+.net-info{margin-top:14px;text-align:center;font-size:13px;font-weight:800;color:var(--ink2);
+ line-height:1.45}
+.net-info:empty{display:none}
+.net-info .code{display:block;margin:6px 0 4px;font-family:"Nunito",sans-serif;font-weight:900;
+ font-size:clamp(34px,10vw,44px);letter-spacing:.26em;text-indent:.26em;color:var(--ink2)}
+.net-info .att{display:block;font-size:11.5px;font-weight:700;opacity:.6}
+.ou{display:flex;align-items:center;gap:12px;margin:18px 2px 0;color:var(--ink2);opacity:.4}
+.ou:before,.ou:after{content:"";flex:1;height:1px;background:currentColor}
+.ou span{font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"></head>
 <body>
@@ -417,22 +447,39 @@ body:before,body:after{content:none;display:none}
   </section>
 
   <section class="screen" id="online">
-    <div class="topbar">
-      <button class="iconbtn" id="onlineBack">‹</button>
-      <div class="title">Duel en ligne</div><div style="width:44px"></div>
+  <div class="hdr">
+    <button class="rond" id="onlineBack">&lsaquo;</button>
+    <div class="hdr-t"><h1 class="jeu-nom">SWASH<span class="sup">CLASSIC</span></h1><div class="jeu-fmt">En ligne</div></div>
+    <span style="width:44px"></span>
+  </div>
+
+  <div class="dedans-net">
+    <div class="grp">
+      <div class="grp-t">Votre nom</div>
+      <input id="netNom" maxlength="14" autocomplete="nickname" placeholder="Votre nom">
+      <div class="aide">Il sera visible par votre adversaire.</div>
     </div>
-    <div class="sheet">
-      <div class="rule"><b>Votre nom</b><br>Il sera visible par votre adversaire.<input id="netNom" maxlength="14" autocomplete="nickname" placeholder="Votre nom" style="width:100%;margin-top:10px;padding:13px;border:0;border-radius:14px;text-align:center;font-size:17px;font-weight:800;background:rgba(255,255,255,.85);color:#0d4660"></div><div class="rule"><b>Créer une partie</b><br>Vous jouez les bleus et commencez.<select id="netBase" style="width:100%;margin-top:10px;padding:12px;border:0;border-radius:14px;font-weight:800;background:rgba(255,255,255,.85);color:#0d4660"><option value="600" selected>10 min par joueur</option><option value="300">5 min par joueur</option><option value="0">Sans chrono</option></select>
-        <button class="primary" id="netCreate" style="width:100%;margin-top:10px">Créer</button></div>
-      <div class="rule"><b>Rejoindre</b><br>Saisissez le code reçu.
-        <input id="netCode" maxlength="4" autocapitalize="characters" autocomplete="off"
-          placeholder="CODE" style="width:100%;margin-top:10px;padding:14px;border:0;border-radius:14px;
-          text-align:center;font-size:26px;font-weight:900;letter-spacing:.3em;text-transform:uppercase;
-          background:rgba(255,255,255,.85);color:#0d4660">
-        <button class="secondary" id="netJoin" style="width:100%;margin-top:8px">Rejoindre</button></div>
-      <div class="rule" id="netInfo" style="text-align:center;font-weight:800">&nbsp;</div>
+
+    <div class="bloc-net">
+      <div class="bloc-t">Cr&eacute;er une partie</div>
+      <div class="aide">Vous jouez les bleus et commencez.</div>
+      <select id="netBase"><option value="600" selected>10 min par joueur</option><option value="300">5 min par joueur</option><option value="0">Sans chrono</option></select>
+      <button class="net-primaire" id="netCreate">Cr&eacute;er la partie</button>
+      <div id="netInfo" class="net-info"></div>
     </div>
-  </section>
+
+    <div class="ou"><span>ou</span></div>
+
+    <div class="bloc-net">
+      <div class="bloc-t">Rejoindre une partie</div>
+      <div class="aide">Saisissez le code re&ccedil;u de votre adversaire.</div>
+      <input id="netCode" maxlength="4" autocapitalize="characters" autocomplete="off" placeholder="CODE">
+      <button class="net-primaire clair" id="netJoin">Rejoindre</button>
+    </div>
+  </div>
+</section>
+
+
 
   <section class="screen" id="rules">
   <div class="hdr">
@@ -896,7 +943,7 @@ async function netCreer(){
   const l=Array.isArray(data)?data[0]:data;
   net={actif:true,id:l.partie_id,code:l.code,moi:1,canal:null,distant:false,lance:false,base:l.base,t1:l.base,t2:l.base,trait:1,ancre:Date.now(),reclame:false,nomH:monNom(),nomI:null};
   abonner();
-  netInfo("Code de la partie<br><span style=\'font-size:34px;letter-spacing:.25em\'>"+l.code+"</span><br>En attente de l’adversaire…");
+  netInfo("Code de la partie<span class='code'>"+l.code+"</span><span class='att'>En attente de l\u2019adversaire\u2026</span>");
 }
 async function netRejoindre(){
   const code=($("netCode").value||"").trim().toUpperCase();
