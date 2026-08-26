@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#9ad7df">
-<title>TIDE V2.0</title>
+<title>SWASH V2.0</title>
 <style>*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 button,select{font:inherit}
 .app{min-height:100svh;position:relative;overflow:hidden}
@@ -28,8 +28,8 @@ button,select{font:inherit}
   text-shadow:0 2px 0 rgba(255,255,255,.28);
 }
 @keyframes floatBoard{50%{transform:rotate(1deg) translateY(-4px)}}
-@keyframes tideWave{from{transform:translateX(-1.5%) rotate(-2deg)}to{transform:translateX(1.5%) rotate(1deg)}}
-@keyframes tideFoam{from{transform:translateX(1%)}to{transform:translateX(-2%)}}
+@keyframes swashWave{from{transform:translateX(-1.5%) rotate(-2deg)}to{transform:translateX(1.5%) rotate(1deg)}}
+@keyframes swashFoam{from{transform:translateX(1%)}to{transform:translateX(-2%)}}
 @keyframes shellDrop{
   from{transform:translateY(-12px) rotate(-14deg) scale(.78);opacity:.15}
   to{transform:translateY(0) rotate(-8deg) scale(1);opacity:1}}
@@ -37,7 +37,7 @@ button,select{font:inherit}
   from{filter:brightness(1.08) drop-shadow(0 0 4px rgba(255,255,255,.65));transform:rotate(-8deg) scale(1.02)}
   to{filter:brightness(1.26) drop-shadow(0 0 14px rgba(255,255,255,.95));transform:rotate(-4deg) scale(1.09)}}
 .logo{font-size:clamp(44px,7vw,74px)!important;color:#0b4164!important}
-@keyframes tidePressure{
+@keyframes swashPressure{
   from{filter:brightness(1) drop-shadow(0 0 2px rgba(255,255,255,.25))}
   to{filter:brightness(1.18) drop-shadow(0 0 10px rgba(255,255,255,.8))}}
 @keyframes clockPulse{to{transform:scale(1.07)}}
@@ -51,7 +51,7 @@ button,select{font:inherit}
 @keyframes winRing{
   from{transform:scale(1)}
   to{transform:scale(1.07);box-shadow:0 0 0 6px #fffdf5,0 0 0 11px rgba(13,70,95,.92)}}
-/* ==================== TIDE — pages de jeu ==================== */
+/* ==================== SWASH — pages de jeu ==================== */
 :root{--ink:#173b40;--ink2:#0d4660;--corail:#E05638;--sable:#F8D8AB}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--sable);margin:0;padding:0}
@@ -94,7 +94,7 @@ body:before,body:after{content:none;display:none}
 .sep{display:grid;place-items:center;color:var(--ink2);opacity:.34}
 .sablier{width:19px;height:19px}
 
-/* phase (TIDE+) */
+/* phase (Swash Deep) */
 #phase{margin:12px auto 0;padding:10px 16px;border-radius:16px;text-align:center;
  font-weight:900;font-size:12.5px;color:#fff;background:linear-gradient(90deg,#0e4b68,#15637f)}
 #phase.rouge{background:linear-gradient(90deg,#8c1c08,#c0341a)}
@@ -196,6 +196,15 @@ body:before,body:after{content:none;display:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 
 .jeu-nom .sup{color:var(--corail);font-size:.52em;vertical-align:super;letter-spacing:.06em;margin-left:.12em}
+
+.sheet,#rules .panel{background:rgba(255,255,255,.40);border-radius:22px;padding:18px 18px 20px;
+ box-shadow:inset 0 0 0 1px rgba(255,255,255,.5);margin-top:14px}
+.r-tit{margin:16px 0 6px;font-size:10.5px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+ color:var(--corail)}
+.r-tit:first-child{margin-top:0}
+#rules .rule{font-size:13.5px;line-height:1.5;color:var(--ink2);opacity:.86;margin:0 0 8px}
+#rules .rule b{opacity:1;font-weight:900}
+#rules .rule sup{font-size:.7em}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"></head>
 <body>
@@ -205,7 +214,7 @@ body:before,body:after{content:none;display:none}
   <section class="screen" id="game">
   <div class="hdr">
     <button class="rond" id="backHome">&lsaquo;</button>
-    <div class="hdr-t"><h1 class="jeu-nom">TIDE<span class="sup">CLASSIC</span></h1><div class="jeu-fmt">4 &times; 4</div></div>
+    <div class="hdr-t"><h1 class="jeu-nom">SWASH<span class="sup">CLASSIC</span></h1><div class="jeu-fmt">4 &times; 4</div></div>
     <button class="rond" id="rulesBtn">&middot;&middot;&middot;</button>
   </div>
 
@@ -249,7 +258,7 @@ body:before,body:after{content:none;display:none}
 <section class="screen" id="victoire">
   <div class="hdr">
     <button class="rond" id="vicHome">&lsaquo;</button>
-    <div class="hdr-t"><h1 class="jeu-nom">TIDE<span class="sup">CLASSIC</span></h1><div class="jeu-fmt">4 &times; 4</div></div>
+    <div class="hdr-t"><h1 class="jeu-nom">SWASH<span class="sup">CLASSIC</span></h1><div class="jeu-fmt">4 &times; 4</div></div>
     <span style="width:44px"></span>
   </div>
 
@@ -307,26 +316,53 @@ body:before,body:after{content:none;display:none}
   </section>
 
   <section class="screen" id="rules">
-    <div class="topbar">
-      <button class="iconbtn" id="rulesBack">‹</button>
-      <div class="title">Comment jouer</div><div style="width:44px"></div>
-    </div>
-    <div class="sheet">
-      <div class="rule"><b>1.</b> Chaque joueur pose 4 coquillages.</div>
-      <div class="rule"><b>2.</b> La victoire n’est possible qu’une fois les 8 coquillages posés.</div>
-      <div class="rule"><b>3.</b> Ensuite, chaque coquillage se déplace d’une seule case, horizontalement ou verticalement.</div>
-      <div class="rule"><b>4.</b> Alignez vos 4 coquillages horizontalement, verticalement ou en diagonale.</div>
-        <div class="rule"><b>5.</b> Anti-retour : un coquillage déplacé ne peut pas revenir immédiatement sur la case qu’il vient de quitter à votre tour suivant.</div>
-        <div class="rule"><b>6.</b> Joueur bloqué : celui qui n’a plus aucun coup légal à son tour perd la partie.</div><div class="rule"><b>7.</b> Double alignement : si un déplacement aligne les deux camps en même temps, c’est le joueur qui vient de jouer qui gagne.</div><div class="rule"><b>8.</b> Nulle par triple répétition : si la même position revient une troisième fois (mêmes coquillages, même joueur au trait, mêmes interdictions d’anti-retour), la partie est nulle.</div><div class="rule"><b>9.</b> Chrono : 5 min par joueur, sans incrément. À 0:00, la partie est perdue. Modes 3 min et Libre disponibles.</div><div class="rule"><b>IA V2.</b> Les 4 niveaux respectent l’anti-retour. Expert et Maître jouent sans erreurs aléatoires. La variante V2 a été résolue hors ligne comme nulle avec jeu parfait ; cette version navigateur utilise encore le moteur de recherche local.</div>
-    </div>
-  </section>
+  <div class="hdr">
+    <button class="rond" id="rulesBack">&lsaquo;</button>
+    <div class="hdr-t"><h1 class="jeu-nom">SWASH<span class="sup">CLASSIC</span></h1>
+      <div class="jeu-fmt">Comment jouer</div></div>
+    <span style="width:44px"></span>
+  </div>
+  <div class="sheet">
+    <div class="r-tit">Le plateau</div>
+    <div class="rule">16 trous. <b>4 coquillages</b> par joueur. Bleu commence.</div>
+
+    <div class="r-tit">1 &middot; La pose</div>
+    <div class="rule">Chacun son tour, posez un coquillage dans un trou libre,
+      jusqu&rsquo;&agrave; ce que les 8 soient pos&eacute;s.</div>
+    <div class="rule">Aucune victoire n&rsquo;est annonc&eacute;e pendant la pose. Mais un alignement
+      construit &agrave; ce moment reste sur le plateau&nbsp;: il compte d&egrave;s le 8<sup>e</sup> coquillage pos&eacute;.</div>
+
+    <div class="r-tit">2 &middot; Le d&eacute;placement</div>
+    <div class="rule">Ensuite, d&eacute;placez un coquillage d&rsquo;un seul trou,
+      horizontalement ou verticalement, vers un trou libre.</div>
+    <div class="rule">Ni capture, ni saut. Les 8 coquillages restent en jeu du d&eacute;but &agrave; la fin.</div>
+
+    <div class="r-tit">3 &middot; Anti-retour</div>
+    <div class="rule">Un coquillage qui vient d&rsquo;aller de A vers B ne peut pas revenir en A
+      &agrave; votre tour suivant. Il peut aller ailleurs, et vos autres coquillages sont libres.</div>
+
+    <div class="r-tit">4 &middot; Gagner</div>
+    <div class="rule">Alignez vos <b>4 coquillages</b>&nbsp;: ligne, colonne ou diagonale.</div>
+    <div class="rule">Si un d&eacute;placement aligne les deux camps &agrave; la fois,
+      c&rsquo;est celui qui vient de jouer qui gagne.</div>
+    <div class="rule">Celui qui n&rsquo;a plus aucun coup possible &agrave; son tour perd la partie.</div>
+
+    <div class="r-tit">5 &middot; Match nul</div>
+    <div class="rule">Si la m&ecirc;me position revient une troisi&egrave;me fois &mdash; m&ecirc;mes coquillages,
+      m&ecirc;me joueur au trait, m&ecirc;mes interdictions d&rsquo;anti-retour &mdash; la partie est nulle.</div>
+
+    <div class="r-tit">6 &middot; Le chrono</div>
+    <div class="rule">5 minutes par joueur, sans incr&eacute;ment. &Agrave; 0:00, la partie est perdue.
+      Modes 3 minutes et Libre disponibles.</div>
+  </div>
+</section>
 </div>
 
 <div id="over"><div id="overCard"><div id="overT"></div><div id="overS"></div><button id="overB">Rejouer</button><button id="overX">Voir le plateau</button></div></div>
 <script>
 
 /*
-TIDE Engine v0.8
+SWASH Engine v0.8
 Standalone browser engine.
 */
 const TIDE = (() => {
@@ -550,8 +586,8 @@ function haptic(ms=12){try{navigator.vibrate?.(ms)}catch(e){}}
 const screens=["game","stats","rules","online","victoire"];
 function show(id){screens.forEach(x=>{const e=$(x);if(e)e.classList.toggle("active",x===id)});}
 
-const STATS_KEY="tide_stats_v20";
-const MATCHES_KEY="tide_matches_v20";
+const STATS_KEY="swash_stats_v20";
+const MATCHES_KEY="swash_matches_v20";
 const TIMER_PRESETS={
   "3+0":{base:180,inc:0,label:"3 min"},
   "5+0":{base:300,inc:0,label:"5 min"},
@@ -648,7 +684,7 @@ function updateClockUI(){
 
 function newMatchRecord(){
   return {
-    id:`tide-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+    id:`swash-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
     version:"2.0-beta",
     startedAt:new Date().toISOString(),
     mode,
@@ -690,7 +726,7 @@ async function sbInit(){
   return sb;
 }
 function netInfo(t){$("netInfo").innerHTML=t}
-const NOM_KEY="tide_nom";
+const NOM_KEY="swash_nom";
 function monNom(){const v=($("netNom").value||"").trim().slice(0,14);
   if(v){try{localStorage.setItem(NOM_KEY,v)}catch(e){}}
   return v||"Joueur"}
@@ -919,7 +955,7 @@ function csvEscape(v){
   const s=String(v??"");return /[",\n]/.test(s)?'"'+s.replaceAll('"','""')+'"':s;
 }
 function exportJSON(){
-  download(`tide-lab-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({version:"2.0-beta",exportedAt:new Date().toISOString(),matches},null,2),"application/json");
+  download(`swash-lab-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({version:"2.0-beta",exportedAt:new Date().toISOString(),matches},null,2),"application/json");
 }
 function exportCSV(){
   const cols=["matchId","startedAt","mode","aiLevel","timer","winner","reason","ply","player","phase","notation","thinkMs","clockAfter","boardBefore","boardAfter"];
@@ -930,7 +966,7 @@ function exportCSV(){
       winner:g.result?.winner,reason:g.result?.reason,...m
     }[k])).join(","));
   }
-  download(`tide-lab-${new Date().toISOString().slice(0,10)}.csv`,rows.join("\n"),"text/csv;charset=utf-8");
+  download(`swash-lab-${new Date().toISOString().slice(0,10)}.csv`,rows.join("\n"),"text/csv;charset=utf-8");
 }
 
 
@@ -961,7 +997,7 @@ $("resetStats").addEventListener("click",()=>{
 });
 render();
 
-/* ============ TIDE — bandeau, victoire, entree par URL ============ */
+/* ============ SWASH — bandeau, victoire, entree par URL ============ */
 const VG = {"cols": [16.62, 38.88, 61.13, 83.38], "rows": [16.62, 38.88, 61.13, 83.38], "d": 18.1, "n": 4};
 const VJEU = "classic";
 const VNB = 4, VPERLE = false;
@@ -1125,7 +1161,7 @@ function abrege(){
   render = function(){ orig.apply(this, arguments); try{ majBandeau(); nomsCamps(); abrege(); }catch(e){} };
 })();
 
-/* TIDE+ : choix du premier joueur (l IA reste le camp 2) */
+/* Swash Deep : choix du premier joueur (l IA reste le camp 2) */
 (function(){
   const btn = document.getElementById("firstPlus");
   if (!btn) return;
@@ -1153,6 +1189,22 @@ function abrege(){
     try{ montrerVictoire(t || {winner:0}); }catch(e){}
     return r;
   };
+})();
+
+/* retour depuis le reglement : au jeu si une partie est ouverte, sinon a l accueil */
+(function retourRegles(){
+  const direct = (new URLSearchParams(location.search).get("m") || "solo") === "regles";
+  const sec = document.getElementById("rules");
+  if (!sec) return;
+  sec.querySelectorAll(".rond, .back, #rulesBack").forEach(b => {
+    const neuf = b.cloneNode(true);            // efface les anciens gestionnaires
+    b.parentNode.replaceChild(neuf, b);
+    neuf.addEventListener("click", () => {
+      if (direct) { location.href = "index.html"; return; }
+      show("game");
+      try { if (typeof beginTurnClock === "function" && !ended) beginTurnClock(); } catch(e){}
+    });
+  });
 })();
 
 /* entree directe selon l URL */
