@@ -88,7 +88,7 @@ body:before,body:after{content:none;display:none}
 .jetons i.off{opacity:.2}
 .jetons i.perle{background:radial-gradient(circle at 34% 30%,#fff,#e6ded0);box-shadow:0 0 0 1.6px #d8a93c}
 .tps{font-weight:900;font-size:clamp(18px,5vw,22px);color:var(--ink2);
- font-variant-numeric:tabular-nums;line-height:1;opacity:.38;transition:opacity .2s}
+ font-variant-numeric:tabular-nums;line-height:1;opacity:.62;transition:opacity .2s}
 .tps.actif{opacity:1}
 .tps.chaud{color:#B7371C;opacity:1}
 .sep{display:grid;place-items:center;color:var(--ink2);opacity:.34}
@@ -276,6 +276,8 @@ body:before,body:after{content:none;display:none}
 .lien-regles{display:block;width:100%;margin-top:12px;border:0;background:none;font-family:inherit;
  text-align:center;color:var(--ink2);opacity:.58;font-weight:850;font-size:13px;
  text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px}
+.rond.ic{padding:0}
+.rond.ic svg{width:23px;height:23px;display:block}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"></head>
 <body>
@@ -331,7 +333,7 @@ body:before,body:after{content:none;display:none}
   <div class="hdr">
     <button class="rond" id="backHome">&lsaquo;</button>
     <div class="hdr-t"><h1 class="jeu-nom">SWASH<span class="sup">CLASSIC</span></h1><div class="jeu-fmt">4 &times; 4</div></div>
-    <button class="rond" id="rulesBtn">&middot;&middot;&middot;</button>
+    <button class="rond ic" id="rulesBtn" aria-label="Menu de partie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><path d="M10 8.9v6.2"/><path d="M14 8.9v6.2"/></svg></button>
   </div>
 
   <div class="bandeau">
