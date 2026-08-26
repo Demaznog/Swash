@@ -4,7 +4,8 @@
 html{background:#1598ba}
 body{margin:0;padding:0;min-height:100svh;color:var(--ink);background:#1598ba;
  font-family:"Nunito",ui-rounded,-apple-system-rounded,"SF Pro Rounded",-apple-system,sans-serif}
-#sable{position:fixed;inset:0;background:#F8D8AB;z-index:0;pointer-events:none}
+#sable{position:fixed;left:0;right:0;top:0;bottom:-220px;
+ background:#F8D8AB;z-index:0;pointer-events:none}
 #mer{position:absolute;left:0;right:0;top:0;
  height:calc(env(safe-area-inset-top) + clamp(170px,20svh,208px));z-index:1;pointer-events:none;
  background:linear-gradient(180deg,#1598ba 0,#3fbacf 42%,#9ed8cf 70%,#e4d9bd 88%,var(--sable) 100%)}
@@ -15,7 +16,7 @@ body{margin:0;padding:0;min-height:100svh;color:var(--ink);background:#1598ba;
  padding:calc(env(safe-area-inset-top) + 12px) 18px calc(env(safe-area-inset-bottom) + 18px)}
 .entete{height:clamp(162px,18svh,192px);display:flex;flex-direction:column;justify-content:center}
 .duo{flex:0 0 auto}
-.bas{margin-top:26px;padding-top:0}
+.bas{margin-top:44px;padding-top:0}
 .duo{margin-bottom:0}
 .brand{text-align:center}
 .brand .mot{display:inline-block;font-family:"Nunito",sans-serif;font-size:clamp(50px,13vw,88px);
