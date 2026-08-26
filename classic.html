@@ -205,13 +205,128 @@ body:before,body:after{content:none;display:none}
 #rules .rule{font-size:13.5px;line-height:1.5;color:var(--ink2);opacity:.86;margin:0 0 8px}
 #rules .rule b{opacity:1;font-weight:900}
 #rules .rule sup{font-size:.7em}
+
+/* ============ ecran de preparation ============ */
+#setup{position:fixed;inset:0;z-index:70;background:var(--sable);overflow-y:auto;
+ max-width:none;margin:0;padding:0 20px calc(env(safe-area-inset-bottom) + 24px);
+ display:none}
+#setup.active{display:block;animation:fondu .3s ease both}
+@keyframes fondu{from{opacity:0}to{opacity:1}}
+#setup .dedans{max-width:430px;margin:0 auto;min-height:100svh;display:flex;flex-direction:column;
+ padding-top:calc(env(safe-area-inset-top) + 6vh)}
+#setup h2{margin:0;text-align:center;font-family:"Nunito",sans-serif;font-weight:900;
+ font-synthesis-weight:none;letter-spacing:.055em;font-size:clamp(24px,6.6vw,30px);color:var(--ink2)}
+#setup .st{margin-top:6px;text-align:center;font-size:12px;font-weight:800;letter-spacing:.12em;
+ text-transform:uppercase;color:var(--ink2);opacity:.5}
+.grp{margin-top:26px}
+.grp-t{font-size:10.5px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+ color:var(--corail);margin-bottom:9px}
+.choix{display:grid;gap:8px}
+.choix.deux{grid-template-columns:1fr 1fr}
+.choix.trois{grid-template-columns:repeat(3,1fr)}
+.opt{border:0;border-radius:16px;padding:14px 8px;font-family:inherit;font-weight:900;
+ font-size:14px;color:var(--ink2);background:rgba(255,255,255,.42);
+ box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);transition:transform .15s}
+.opt small{display:block;margin-top:2px;font-size:10px;font-weight:750;opacity:.55}
+.opt[aria-pressed="true"]{background:linear-gradient(180deg,#184a55,#113741);color:#fff;
+ box-shadow:0 6px 16px rgba(20,58,63,.22)}
+.opt[aria-pressed="true"] small{opacity:.75}
+.opt:active{transform:scale(.97)}
+#setup .go{margin-top:auto;padding-top:28px}
+#jouer{width:100%;border:0;border-radius:999px;padding:17px;font-family:inherit;font-weight:900;
+ font-size:16px;letter-spacing:.06em;color:#fff;background:linear-gradient(180deg,#184a55,#113741);
+ box-shadow:0 10px 24px rgba(20,58,63,.26)}
+#setupBack{position:absolute;top:calc(env(safe-area-inset-top) + 12px);left:16px;
+ width:44px;height:44px;border:0;border-radius:50%;font-family:inherit;font-size:19px;font-weight:900;
+ color:var(--ink2);background:rgba(255,255,255,.46);box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
+
+/* ============ menu de partie ============ */
+#menuJeu{position:fixed;inset:0;z-index:75;display:none;place-items:center;padding:24px;
+ background:rgba(8,44,80,.32);backdrop-filter:blur(3px)}
+#menuJeu.on{display:grid;animation:fondu .22s ease both}
+#menuJeu .carte{width:100%;max-width:320px;background:rgba(255,255,255,.96);border-radius:26px;
+ padding:20px;display:grid;gap:9px;box-shadow:0 26px 60px rgba(20,60,80,.3)}
+#menuJeu button{border:0;border-radius:16px;padding:15px;font-family:inherit;font-weight:900;
+ font-size:14.5px;color:var(--ink2);background:#F3E3C8}
+#menuJeu .fort{background:linear-gradient(180deg,#184a55,#113741);color:#fff}
+#menuJeu .leger{background:none;font-weight:800;font-size:13px;opacity:.6}
+
+/* ============ pause ============ */
+#pause{position:fixed;inset:0;z-index:74;display:none;place-items:center;
+ background:rgba(248,216,171,.94);backdrop-filter:blur(6px)}
+#pause.on{display:grid;animation:fondu .22s ease both}
+#pause .bloc{text-align:center}
+#pause b{display:block;font-family:"Nunito",sans-serif;font-weight:900;font-synthesis-weight:none;
+ letter-spacing:.08em;font-size:clamp(24px,7vw,32px);color:var(--ink2)}
+#pause span{display:block;margin-top:6px;font-size:12px;font-weight:800;color:var(--ink2);opacity:.55}
+#reprendre{margin-top:22px;border:0;border-radius:999px;padding:15px 34px;font-family:inherit;
+ font-weight:900;font-size:15px;letter-spacing:.05em;color:#fff;
+ background:linear-gradient(180deg,#184a55,#113741);box-shadow:0 10px 24px rgba(20,58,63,.26)}
+
+/* ============ chrono unique en solo ============ */
+.bandeau.solo .tps{display:none}
+.bandeau.solo .sep{display:flex;align-items:center;gap:8px}
+.bandeau.solo .sep .duree{font-weight:900;font-size:clamp(18px,5vw,22px);color:var(--ink2);
+ font-variant-numeric:tabular-nums}
+.bandeau.solo .sep .duree.chaud{color:#B7371C}
+.sep .duree{display:none}
+
+/* ============ lien reglement en bas ============ */
+.lien-regles{display:block;width:100%;margin-top:12px;border:0;background:none;font-family:inherit;
+ text-align:center;color:var(--ink2);opacity:.58;font-weight:850;font-size:13px;
+ text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px}
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"></head>
 <body>
 <div class="app">
   <div class="wave"></div>
 
-  <section class="screen" id="game">
+  <section class="screen" id="setup">
+  <button id="setupBack">&lsaquo;</button>
+  <div class="dedans">
+    <h2>SWASH<span class="sup">CLASSIC</span></h2>
+    <div class="st" id="setupMode">Solo</div>
+
+    <div class="grp" id="grpNiveau">
+      <div class="grp-t">Niveau de l&rsquo;IA</div>
+      <div class="choix deux">
+        <button class="opt" data-niv="relax">D&eacute;tente</button>
+        <button class="opt" data-niv="clever" aria-pressed="true">Malin</button>
+        <button class="opt" data-niv="expert">Expert</button>
+        <button class="opt" data-niv="master">Ma&icirc;tre</button>
+      </div>
+    </div>
+
+    <div class="grp">
+      <div class="grp-t">Temps de r&eacute;flexion</div>
+      <div class="choix trois" id="grpCadence"></div>
+    </div>
+
+    <div class="grp" id="grpPremier">
+      <div class="grp-t">Qui commence&nbsp;?</div>
+      <div class="choix deux">
+        <button class="opt" data-prem="moi" aria-pressed="true">Moi</button>
+        <button class="opt" data-prem="ia">L&rsquo;IA</button>
+      </div>
+    </div>
+
+    <div class="go"><button id="jouer">Jouer</button></div>
+  </div>
+</section>
+
+<div id="menuJeu"><div class="carte">
+  <button class="fort" id="mPause">Mettre en pause</button>
+  <button id="mRejouer">Recommencer la partie</button>
+  <button id="mQuitter">Quitter</button>
+  <button class="leger" id="mFermer">Annuler</button>
+</div></div>
+
+<div id="pause"><div class="bloc">
+  <b>PAUSE</b><span>La pendule est arr&ecirc;t&eacute;e</span>
+  <button id="reprendre">Reprendre</button>
+</div></div>
+
+<section class="screen" id="game">
   <div class="hdr">
     <button class="rond" id="backHome">&lsaquo;</button>
     <div class="hdr-t"><h1 class="jeu-nom">SWASH<span class="sup">CLASSIC</span></h1><div class="jeu-fmt">4 &times; 4</div></div>
@@ -248,7 +363,8 @@ body:before,body:after{content:none;display:none}
     <div class="regle-txt"><b>R&Egrave;GLE ANTI-RETOUR</b><span>Tu ne peux pas rejouer le coup pr&eacute;c&eacute;dent de la m&ecirc;me pi&egrave;ce.</span></div>
   </div>
 
-  <div class="reglages">
+  <button class="lien-regles" id="versRegles">R&egrave;glement</button>
+<div class="reglages" style="display:none">
     <select id="levelSelect" aria-label="Niveau"><option value="relax">D&eacute;tente</option><option value="clever" selected>Malin</option><option value="expert">Expert</option><option value="master">Ma&icirc;tre</option></select>
     <select id="timerSelect" aria-label="Cadence"><option value="5+0" selected>5 min</option><option value="3+0">3 min</option><option value="off">Sans chrono</option></select>
     <button id="firstPlayerBtn">Je commence</button><button id="newGameBtn">Rejouer</button>
@@ -583,7 +699,7 @@ const TIDE = (() => {
 
 const $=id=>document.getElementById(id);
 function haptic(ms=12){try{navigator.vibrate?.(ms)}catch(e){}}
-const screens=["game","stats","rules","online","victoire"];
+const screens=["game","stats","rules","online","victoire","setup"];
 function show(id){screens.forEach(x=>{const e=$(x);if(e)e.classList.toggle("active",x===id)});}
 
 const STATS_KEY="swash_stats_v20";
@@ -1123,14 +1239,14 @@ function delaiIA(){
       : (typeof state !== "undefined" ? (state.ply||0) : 0);
   const sel = document.getElementById(VJEU === "plus" ? "level" : "levelSelect");
   const niv = sel ? sel.value : "clever";
-  const coef = {relax:0.68, clever:1, expert:1.18, master:1.38}[niv] || 1;
+  const coef = {relax:0.51, clever:0.75, expert:0.89, master:1.04}[niv] || 1;
   let ms;
   if (pose) ms = 900 + Math.random() * 700;                 // pose : 0,9 a 1,6 s
   else {
     const avance = Math.max(0, coups - (VJEU === "plus" ? 10 : 8));
     ms = 2100 + Math.min(avance, 26) * 105 + Math.random() * 1300;
   }
-  return Math.round(Math.min(5600, ms * coef));
+  return Math.round(Math.min(4200, ms * coef));
 }
 
 /* raccourcir les consignes : le plateau doit primer */
@@ -1207,13 +1323,207 @@ function abrege(){
   });
 })();
 
+/* ================= preparation, menu, pause, chrono solo ================= */
+(function(){
+  const ID = {"niveau": "levelSelect", "cadence": "timerSelect", "premier": "firstPlayerBtn", "rejouer": "newGameBtn", "menu": "rulesBtn"};
+  const $$ = i => document.getElementById(i);
+  const selNiv = $$(ID.niveau), selCad = $$(ID.cadence);
+  let modeVoulu = "solo", premier = "moi";
+
+  /* --- cadences reprises du moteur --- */
+  (function(){
+    const g = $$("grpCadence");
+    if (!g || !selCad) return;
+    g.innerHTML = "";
+    [...selCad.options].forEach((o, i) => {
+      const b = document.createElement("button");
+      b.className = "opt"; b.dataset.cad = o.value;
+      b.textContent = o.textContent;
+      if (o.selected || (i === 0 && !selCad.value)) b.setAttribute("aria-pressed", "true");
+      g.appendChild(b);
+    });
+  })();
+
+  function groupe(el, attr, apres){
+    if (!el) return;
+    el.querySelectorAll(".opt").forEach(b => b.addEventListener("click", () => {
+      el.querySelectorAll(".opt").forEach(x => x.setAttribute("aria-pressed", "false"));
+      b.setAttribute("aria-pressed", "true");
+      apres(b.dataset[attr]);
+    }));
+  }
+  groupe($$("grpNiveau"), "niv", v => { if (selNiv) selNiv.value = v; });
+  groupe($$("grpCadence"), "cad", v => { if (selCad){ selCad.value = v;
+      selCad.dispatchEvent(new Event("change", {bubbles:true})); } });
+  groupe($$("grpPremier"), "prem", v => { premier = v; });
+
+  function ouvrirSetup(m){
+    modeVoulu = m;
+    $$("setupMode").textContent = m === "duel" ? "À deux" : "Solo";
+    const solo = m === "solo";
+    $$("grpNiveau").style.display = solo ? "" : "none";
+    $$("grpPremier").style.display = solo ? "" : "none";
+    show("setup");
+  }
+  window.ouvrirSetup = ouvrirSetup;
+
+  $$("jouer").addEventListener("click", () => {
+    setMode(modeVoulu);
+    try{ if (window.__soloChrono && modeVoulu === "solo") window.__soloChrono.lancer(); }catch(e){}
+    if (modeVoulu === "solo" && premier === "ia") { firstPlayer = 2; resetGame(); }
+    majSolo();
+  });
+  $$("setupBack").addEventListener("click", () => { location.href = "index.html"; });
+
+  /* --- menu de partie --- */
+  const menu = $$("menuJeu"), pause = $$("pause");
+  const ouvrir = () => menu.classList.add("on");
+  const fermer = () => menu.classList.remove("on");
+  const btnMenu = $$(ID.menu);
+  if (btnMenu){
+    const neuf = btnMenu.cloneNode(true);
+    btnMenu.parentNode.replaceChild(neuf, btnMenu);
+    neuf.addEventListener("click", ouvrir);
+  }
+  $$("mFermer").addEventListener("click", fermer);
+  menu.addEventListener("click", e => { if (e.target === menu) fermer(); });
+  $$("mPause").addEventListener("click", () => {
+    fermer();
+    try{ if (typeof stopClock === "function") stopClock(); }catch(e){}
+    try{ if (window.__soloChrono) window.__soloChrono.suspendre(); }catch(e){}
+    pause.classList.add("on");
+  });
+  $$("reprendre").addEventListener("click", () => {
+    pause.classList.remove("on");
+    try{ if (typeof beginTurnClock === "function" && !ended) beginTurnClock(); }catch(e){}
+    try{ if (window.__soloChrono) window.__soloChrono.reprendre(); }catch(e){}
+  });
+  $$("mRejouer").addEventListener("click", () => {
+    fermer();
+    const b = $$(ID.rejouer); if (b) b.click();
+    try{ if (window.__soloChrono && mode === "solo") window.__soloChrono.lancer(); }catch(e){}
+  });
+  $$("mQuitter").addEventListener("click", () => { location.href = "index.html"; });
+
+  /* --- chrono unique en mode solo --- */
+  function majSolo(){
+    const b = document.querySelector(".bandeau");
+    if (!b) return;
+    b.classList.toggle("solo", mode === "solo");
+    const sep = b.querySelector(".sep");
+    if (!sep) return;
+    let d = sep.querySelector(".duree");
+    if (!d){ d = document.createElement("b"); d.className = "duree"; sep.appendChild(d); }
+    d.style.display = mode === "solo" ? "" : "none";
+  }
+  window.majSolo = majSolo;
+  const orig = render;
+  render = function(){
+    orig.apply(this, arguments);
+    try{
+      majSolo();
+    }catch(e){}
+  };
+})();
+
+
+
+/* ================= mode solo : un seul chronometre de partie ================= */
+(function(){
+  const selCad = document.getElementById("timerSelect");
+  let restant = null, total = null, minuteur = null, fini = false;
+
+  function duree(){
+    const v = selCad ? String(selCad.value) : "";
+    if (!v || /off|libre/i.test(v)) return null;
+    const m = /^(\d+)/.exec(v);
+    if (!m) return null;
+    let n = +m[1];
+    return n > 60 ? n : n * 60;          // secondes si grande valeur, sinon minutes
+  }
+
+  function afficher(){
+    const d = document.querySelector(".bandeau .duree");
+    if (!d) return;
+    if (restant === null){ d.textContent = "\u221E"; d.classList.remove("chaud"); return; }
+    const m = Math.floor(restant / 60), s = restant % 60;
+    d.textContent = m + ":" + String(s).padStart(2, "0");
+    d.classList.toggle("chaud", restant <= 20);
+  }
+
+  function stop(){ if (minuteur){ clearInterval(minuteur); minuteur = null; } }
+
+  function battre(){
+    if (fini || restant === null) return;
+    restant--;
+    afficher();
+    if (restant <= 0){
+      stop(); fini = true;
+      try{ finish({winner:0, reason:"timeout"}); }catch(e){}
+    }
+  }
+
+  function lancer(){
+    stop(); fini = false;
+    total = duree(); restant = total;
+    afficher();
+    if (restant !== null) minuteur = setInterval(battre, 1000);
+  }
+
+  function suspendre(){ stop(); }
+  function reprendre(){
+    if (!fini && restant !== null && !minuteur && mode === "solo" && !ended)
+      minuteur = setInterval(battre, 1000);
+  }
+
+  window.__soloChrono = {lancer, suspendre, reprendre, stop,
+                         actif: () => mode === "solo" && restant !== null};
+
+  /* les pendules du moteur ne tournent pas en solo */
+  if (typeof beginTurnClock === "function"){
+    const o = beginTurnClock;
+    beginTurnClock = function(){
+      if (mode === "solo"){ try{ stopClock(); }catch(e){} return; }
+      return o.apply(this, arguments);
+    };
+  }
+  if (typeof startClock === "function"){
+    const o2 = startClock;
+    startClock = function(){
+      if (mode === "solo"){ try{ stopClock(); }catch(e){} return; }
+      return o2.apply(this, arguments);
+    };
+  }
+
+  /* la fin de partie arrete le compte a rebours */
+  if (typeof finish === "function"){
+    const o3 = finish;
+    finish = function(){ fini = true; stop(); return o3.apply(this, arguments); };
+  }
+
+  /* le rendu affiche le temps de partie plutot que celui d un joueur */
+  const r = render;
+  render = function(){
+    r.apply(this, arguments);
+    try{ if (mode === "solo") afficher(); }catch(e){}
+  };
+})();
+
 /* entree directe selon l URL */
 (function(){
   const m = new URLSearchParams(location.search).get("m") || "solo";
   if (m === "regles") { show("rules"); return; }
   if (m === "online") { if (typeof netInfo === "function") netInfo("&nbsp;");
                         show(VJEU === "plus" ? "net" : "online"); return; }
-  setMode(m === "duel" ? "duel" : "solo");
+  ouvrirSetup(m === "duel" ? "duel" : "solo");
+})();
+
+(function(){
+  const l = document.getElementById("versRegles");
+  if (l) l.addEventListener("click", () => {
+    try{ if (typeof stopClock === "function") stopClock(); }catch(e){}
+    show("rules");
+  });
 })();
 </script>
 </body>
