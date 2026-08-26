@@ -267,10 +267,10 @@ body:before,body:after{content:none;display:none}
 /* ============ chrono unique en solo ============ */
 .bandeau.solo .tps{display:none}
 .bandeau.solo .sep{display:flex;align-items:center;gap:8px}
-.bandeau.solo .sep .duree{font-weight:900;font-size:clamp(18px,5vw,22px);color:var(--ink2);
- font-variant-numeric:tabular-nums}
+.bandeau.solo .sep .duree{display:inline-block;font-weight:900;
+ font-size:clamp(18px,5vw,22px);color:var(--ink2);font-variant-numeric:tabular-nums}
 .bandeau.solo .sep .duree.chaud{color:#B7371C}
-.sep .duree{display:none}
+.bandeau:not(.solo) .sep .duree{display:none}
 
 /* ============ lien reglement en bas ============ */
 .lien-regles{display:block;width:100%;margin-top:12px;border:0;background:none;font-family:inherit;
@@ -1416,7 +1416,7 @@ function abrege(){
     if (!sep) return;
     let d = sep.querySelector(".duree");
     if (!d){ d = document.createElement("b"); d.className = "duree"; sep.appendChild(d); }
-    d.style.display = mode === "solo" ? "" : "none";
+    d.style.display = "";
   }
   window.majSolo = majSolo;
   const orig = render;
