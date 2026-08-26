@@ -160,7 +160,8 @@ body:before,body:after{content:none;display:none}
 .vic-primaire{background:linear-gradient(180deg,#184a55,#113741);color:#fff;box-shadow:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 
-.jeu-nom .sup{color:var(--corail);font-size:.52em;vertical-align:super;letter-spacing:.06em;margin-left:.12em}
+.jeu-nom .sup,#setup h2 .sup{color:var(--corail);font-size:.52em;vertical-align:super;
+ letter-spacing:.06em;margin-left:.12em}
 
 .sheet,#rules .panel{background:rgba(255,255,255,.40);border-radius:22px;padding:18px 18px 20px;
  box-shadow:inset 0 0 0 1px rgba(255,255,255,.5);margin-top:14px}
@@ -177,13 +178,13 @@ body:before,body:after{content:none;display:none}
  display:none}
 #setup.active{display:block;animation:fondu .3s ease both}
 @keyframes fondu{from{opacity:0}to{opacity:1}}
-#setup .dedans{max-width:430px;margin:0 auto;min-height:100svh;display:flex;flex-direction:column;
- padding-top:calc(env(safe-area-inset-top) + 6vh)}
+#setup .dedans{max-width:430px;margin:0 auto;display:flex;flex-direction:column;
+ padding-top:calc(env(safe-area-inset-top) + 4vh)}
 #setup h2{margin:0;text-align:center;font-family:"Nunito",sans-serif;font-weight:900;
  font-synthesis-weight:none;letter-spacing:.055em;font-size:clamp(24px,6.6vw,30px);color:var(--ink2)}
 #setup .st{margin-top:6px;text-align:center;font-size:12px;font-weight:800;letter-spacing:.12em;
  text-transform:uppercase;color:var(--ink2);opacity:.5}
-.grp{margin-top:26px}
+.grp{margin-top:22px}
 .grp-t{font-size:10.5px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
  color:var(--corail);margin-bottom:9px}
 .choix{display:grid;gap:8px}
@@ -197,7 +198,7 @@ body:before,body:after{content:none;display:none}
  box-shadow:0 6px 16px rgba(20,58,63,.22)}
 .opt[aria-pressed="true"] small{opacity:.75}
 .opt:active{transform:scale(.97)}
-#setup .go{margin-top:auto;padding-top:28px}
+#setup .go{margin-top:30px;padding-top:0}
 #jouer{width:100%;border:0;border-radius:999px;padding:17px;font-family:inherit;font-weight:900;
  font-size:16px;letter-spacing:.06em;color:#fff;background:linear-gradient(180deg,#184a55,#113741);
  box-shadow:0 10px 24px rgba(20,58,63,.26)}
@@ -621,6 +622,7 @@ function startClock(){stopClock();turnStart=performance.now();
   if(mode==="online"){if(net.base){tick=setInterval(netTick,200);netTick()}else paint();return}
   if(base()==null){paint();return}
   tick=setInterval(()=>{if(ended)return;const p=S.turn;
+    if(mode==="solo")return;
     clocks[p]=Math.max(0,clocks[p]-.1);paint();
     if(clocks[p]<=0)finish({winner:3-p,line:null,reason:"timeout"})},100)}
 
@@ -867,14 +869,14 @@ function delaiIA(){
       : (typeof state !== "undefined" ? (state.ply||0) : 0);
   const sel = document.getElementById(VJEU === "plus" ? "level" : "levelSelect");
   const niv = sel ? sel.value : "clever";
-  const coef = {relax:0.51, clever:0.75, expert:0.89, master:1.04}[niv] || 1;
+  const coef = {relax:0.43, clever:0.64, expert:0.76, master:0.88}[niv] || 1;
   let ms;
   if (pose) ms = 900 + Math.random() * 700;                 // pose : 0,9 a 1,6 s
   else {
     const avance = Math.max(0, coups - (VJEU === "plus" ? 10 : 8));
     ms = 2100 + Math.min(avance, 26) * 105 + Math.random() * 1300;
   }
-  return Math.round(Math.min(4200, ms * coef));
+  return Math.round(Math.min(3600, ms * coef));
 }
 
 /* raccourcir les consignes : le plateau doit primer */
