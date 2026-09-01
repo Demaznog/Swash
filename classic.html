@@ -520,6 +520,7 @@ body:before,body:after{content:none;display:none}
     <div class="r-tit">6 &middot; Le chrono</div>
     <div class="rule">5 minutes par joueur, sans incr&eacute;ment. &Agrave; 0:00, la partie est perdue.
       Modes 3 minutes et Libre disponibles.</div>
+    <div class="rule" style="margin-top:16px;opacity:.42;font-size:11px">Version 2026.09.01</div>
   </div>
 </section>
 </div>
@@ -1272,6 +1273,7 @@ function montrerVictoire(t){
   if (r) r.addEventListener("click", () => {
     show("game");
     if (typeof resetGame === "function") resetGame(); else if (typeof reset === "function") reset();
+    try{ if (window.__soloChrono && mode === "solo") window.__soloChrono.lancer(); }catch(e){}
   });
   if (n) n.addEventListener("click", () => { location.href = "index.html"; });
   const hm = document.getElementById("vicHome");
@@ -1515,16 +1517,51 @@ function abrege(){
   }
 
   function lancer(){
-    stop(); fini = false;
+    stop(); fini = false; enPause = false;
     total = duree(); restant = total;
     afficher();
+    enPause = false;
     if (restant !== null) minuteur = setInterval(battre, 1000);
   }
 
-  function suspendre(){ stop(); }
+  let enPause = false;
+  function suspendre(){ enPause = true; stop(); }
   function reprendre(){
+    enPause = false;
     if (!fini && restant !== null && !minuteur && mode === "solo" && !ended)
       minuteur = setInterval(battre, 1000);
+  }
+
+  if (typeof resetGame === "function"){
+    const o0 = resetGame;
+    resetGame = function(){
+      const r = o0.apply(this, arguments);
+      if (mode === "solo") { try{ lancer(); }catch(e){} }
+      return r;
+    };
+  }
+
+  (function(){
+    const b = document.getElementById("newGameBtn");
+    if (!b) return;
+    const n = b.cloneNode(true);
+    b.parentNode.replaceChild(n, b);
+    n.addEventListener("click", () => {
+      if (typeof resetGame === "function") resetGame();
+      if (mode === "solo") { try{ lancer(); }catch(e){} }
+    });
+  })();
+
+  if (typeof show === "function"){
+    const oShow = show;
+    show = function(id){
+      const r = oShow.apply(this, arguments);
+      try{
+        if (id === "game" && mode === "solo" && !ended && (fini || restant === null || restant <= 0))
+          lancer();
+      }catch(e){}
+      return r;
+    };
   }
 
   window.__soloChrono = {lancer, suspendre, reprendre, stop,
@@ -1556,7 +1593,14 @@ function abrege(){
   const r = render;
   render = function(){
     r.apply(this, arguments);
-    try{ if (mode === "solo") afficher(); }catch(e){}
+    try{
+      if (mode !== "solo") return;
+      if (!ended && !enPause && !minuteur && duree() !== null) lancer();
+      // partie en cours, pas en pause, mais aucun minuteur : le compte a rebours
+      // n a pas ete relance. On le repart, quel que soit le chemin emprunte.
+      if (!ended && !enPause && !minuteur) lancer();
+      afficher();
+    }catch(e){}
   };
 })();
 
