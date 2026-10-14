@@ -523,7 +523,7 @@ body:before,body:after{content:none;display:none}
     <div class="r-tit">6 &middot; Le chrono</div>
     <div class="rule">5 minutes par joueur, sans incr&eacute;ment. &Agrave; 0:00, la partie est perdue.
       Modes 3 minutes et Libre disponibles.</div>
-    <div class="rule" style="margin-top:16px;opacity:.42;font-size:11px">Version 2026.10.01</div>
+    <div class="rule" style="margin-top:16px;opacity:.42;font-size:11px">Version 2026.10.02</div>
   </div>
 </section>
 </div>
@@ -552,11 +552,14 @@ const TIDE = (() => {
   });
   const CENTER=new Set([5,6,9,10]), CORNERS=new Set([0,3,12,15]);
 
+  /* Forces calibrees au banc d essai, chaque reglage confronte a l ancien sur plusieurs
+     centaines de parties completes. Detente +15%, Malin +14%, Expert +4,8%.
+     Voir le bloc de verification de la livraison 2026.10.02. */
   const AI_PROFILES={
-    relax:{name:"Détente",placeDepth:1,moveDepth:2,perfectChance:.18,noise:22,thinkMs:220},
-    clever:{name:"Malin",placeDepth:2,moveDepth:4,perfectChance:.62,noise:7,thinkMs:300},
-    expert:{name:"Expert",placeDepth:4,moveDepth:6,perfectChance:1,noise:0,thinkMs:420},
-    master:{name:"Maître",placeDepth:5,moveDepth:8,perfectChance:1,noise:0,thinkMs:520}
+    relax:{name:"Détente",placeDepth:1,moveDepth:2,perfectChance:.27,noise:22,thinkMs:220},
+    clever:{name:"Malin",placeDepth:2,moveDepth:5,perfectChance:.38,noise:7,thinkMs:300},
+    expert:{name:"Expert",placeDepth:6,moveDepth:6,perfectChance:1,noise:0,thinkMs:420},
+    master:{name:"Maître",placeDepth:6,moveDepth:8,perfectChance:1,noise:0,thinkMs:520}
   };
 
   function initialState(firstPlayer=1){

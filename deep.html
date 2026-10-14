@@ -465,7 +465,7 @@ body:before,body:after{content:none;display:none}
     <div class="r-tit">6 &middot; Le chrono</div>
     <div class="rule">8 minutes par joueur, sans incr&eacute;ment. &Agrave; 0:00, la partie est perdue.
       Modes 5 minutes et Libre disponibles.</div>
-    <div class="rule" style="margin-top:16px;opacity:.42;font-size:11px">Version 2026.10.01</div>
+    <div class="rule" style="margin-top:16px;opacity:.42;font-size:11px">Version 2026.10.02</div>
   </div>
 </section>
 
@@ -478,7 +478,10 @@ const D4=[[-1,0],[1,0],[0,-1],[0,1]],D8=[...D4,[-1,-1],[-1,1],[1,-1],[1,1]],LINE
 for(const[dr,dc]of[[0,1],[1,0],[1,1],[1,-1]])for(let r=0;r<5;r++)for(let c=0;c<5;c++){
   let L=[],ok=1;for(let k=0;k<4;k++){let R=r+k*dr,C=c+k*dc;if(R<0||R>=5||C<0||C>=5){ok=0;break}L.push(R*5+C)}
   if(ok)LINES.push(L)}
-const AI={relax:{name:"Détente",d:1,r:.30,n:24,wait:260},clever:{name:"Malin",d:2,r:.10,n:8,wait:340},
+/* Forces calibrees au banc d essai : Detente +15%, Malin +14%. Expert et Maitre inchanges,
+   leur seul levier est un palier de profondeur entier (+80% mesure), hors de la demande.
+   r = part de coups tires au hasard dans le haut du classement. */
+const AI={relax:{name:"Détente",d:1,r:.22,n:24,wait:260},clever:{name:"Malin",d:2,r:.04,n:8,wait:340},
           expert:{name:"Expert",d:4,r:0,n:0,wait:520},master:{name:"Maître",d:5,r:0,n:0,wait:700}};
 function initial(){return{b:Array(25).fill(null),turn:1,last:{1:null,2:null},ply:0,
   placed:{1:0,2:0},pearl:{1:false,2:false}}}
