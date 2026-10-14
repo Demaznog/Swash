@@ -81,6 +81,9 @@ body:before,body:after{content:none;display:none}
 .camp{display:grid;justify-items:start;gap:5px}
 .camp.d{justify-items:end}
 .camp-nom{font-size:11px;font-weight:900;letter-spacing:.11em;color:var(--ink2);opacity:.7}
+.camp-niv{display:inline-block;margin-left:5px;padding:1.5px 6px 2px;border-radius:999px;
+ font-size:8.5px;font-weight:900;letter-spacing:.08em;line-height:1.25;vertical-align:1px;
+ color:#fff;background:var(--corail);opacity:.92;white-space:nowrap}
 .jetons{display:flex;gap:5px}
 .jetons i{width:9px;height:9px;border-radius:50%;box-shadow:0 1px 2px rgba(120,80,40,.35)}
 .jetons.b i{background:#1C8EDD}
@@ -520,7 +523,7 @@ body:before,body:after{content:none;display:none}
     <div class="r-tit">6 &middot; Le chrono</div>
     <div class="rule">5 minutes par joueur, sans incr&eacute;ment. &Agrave; 0:00, la partie est perdue.
       Modes 3 minutes et Libre disponibles.</div>
-    <div class="rule" style="margin-top:16px;opacity:.42;font-size:11px">Version 2026.09.01</div>
+    <div class="rule" style="margin-top:16px;opacity:.42;font-size:11px">Version 2026.10.01</div>
   </div>
 </section>
 </div>
@@ -1208,14 +1211,28 @@ function majBandeau(){
   }
 }
 
-/* noms des camps : Moi / IA en solo */
+/* noms des camps : Moi / IA + niveau en solo */
+const VNIVEAUX = {relax:"DÉTENTE", clever:"MALIN", expert:"EXPERT", master:"MAÎTRE"};
+function niveauIA(){
+  const sel = document.getElementById(VJEU === "plus" ? "level" : "levelSelect");
+  const v = sel ? sel.value : "clever";
+  return VNIVEAUX[v] || "";
+}
 function nomsCamps(){
-  const g1=document.querySelector('.camp .camp-nom'), boites=document.querySelectorAll('.camp-nom');
-  if(boites.length<2)return;
-  if(mode==="solo"){          // l IA tient toujours le camp 2
-    boites[0].textContent = "MOI";
-    boites[1].textContent = "IA";
-  } else { boites[0].textContent="BLEU"; boites[1].textContent="ROUGE"; }
+  const boites = document.querySelectorAll('.camp-nom');
+  if(boites.length < 2) return;
+  const solo = (mode === "solo");          // l IA tient toujours le camp 2
+  const niv  = solo ? niveauIA() : "";
+  const sig  = (solo ? "solo" : "duo") + "|" + niv;
+  if(boites[1].dataset.sig === sig) return;   // rien n a change
+  boites[1].dataset.sig = sig;
+  boites[0].textContent = solo ? "MOI" : "BLEU";
+  boites[1].textContent = solo ? "IA"  : "ROUGE";
+  if(solo && niv){
+    const p = document.createElement("span");
+    p.className = "camp-niv"; p.textContent = niv;
+    boites[1].appendChild(p);
+  }
 }
 
 /* ---------- ecran de victoire ---------- */
