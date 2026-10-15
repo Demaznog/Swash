@@ -46,6 +46,9 @@ body:before,body:after{content:none;display:none}
 .camp{display:grid;justify-items:start;gap:5px}
 .camp.d{justify-items:end}
 .camp-nom{font-size:11px;font-weight:900;letter-spacing:.11em;color:var(--ink2);opacity:.7}
+.vic-niv{display:inline-block;margin-left:7px;padding:2px 7px 2.5px;border-radius:999px;
+ font-size:9px;font-weight:900;letter-spacing:.08em;line-height:1.25;vertical-align:1.5px;
+ color:#fff;background:var(--corail);opacity:.92;white-space:nowrap}
 .camp-niv{display:inline-block;margin-left:5px;padding:1.5px 6px 2px;border-radius:999px;
  font-size:8.5px;font-weight:900;letter-spacing:.08em;line-height:1.25;vertical-align:1px;
  color:#fff;background:var(--corail);opacity:.92;white-space:nowrap}
@@ -465,7 +468,7 @@ body:before,body:after{content:none;display:none}
     <div class="r-tit">6 &middot; Le chrono</div>
     <div class="rule">8 minutes par joueur, sans incr&eacute;ment. &Agrave; 0:00, la partie est perdue.
       Modes 5 minutes et Libre disponibles.</div>
-    <div class="rule" style="margin-top:16px;opacity:.42;font-size:11px">Version 2026.10.02</div>
+    <div class="rule" style="margin-top:16px;opacity:.42;font-size:11px">Version 2026.10.03</div>
   </div>
 </section>
 
@@ -914,6 +917,17 @@ function montrerVictoire(t){
     if (puce) puce.style.display = "none";
     if (nom) nom.textContent = "";
     if (titre) titre.textContent = "MATCH NUL";
+  }
+  /* niveau de l IA sur la carte : « EXPERT » quand c est elle qui gagne,
+     « IA · EXPERT » sinon, pour ne pas sembler qualifier le joueur */
+  if (solo && nom) {
+    const niv = niveauIA();
+    if (niv) {
+      const p = document.createElement("span");
+      p.className = "vic-niv";
+      p.textContent = gagnant === 2 ? niv : "IA · " + niv;
+      nom.appendChild(p);
+    }
   }
   if (raison) raison.textContent =
       t.reason === "timeout" ? "Temps écoulé"
